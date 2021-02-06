@@ -1,0 +1,56 @@
+{
+  "name": "backend-node",
+  "version": "1.0.0",
+  "description": "Ramadan App backend nodejs application",
+  "main": "app.ts",
+  "scripts": {
+    "start": "node dist/src/app.js",
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "build": "tsc -p .",
+    "migrate": "knex --knexfile=src/knexfile.ts migrate:latest",
+    "rollback": "knex --knexfile=src/knexfile.ts migrate:rollback"
+  },
+  "_moduleAliases": {
+    "utils": "dist/src/utils",
+    "routes": "dist/src/routes",
+    "models": "dist/src/models",
+    "controllers": "dist/src/controllers",
+    "database": "dist/src/database"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/ramadan-irc/backend-node.git"
+  },
+  "author": "Zain Khatib",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/ramadan-irc/backend-node/issues"
+  },
+  "homepage": "https://gitlab.com/ramadan-irc/backend-node#readme",
+  "dependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.11",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/nodemailer": "^6.4.0",
+    "bcrypt": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.17",
+    "module-alias": "^2.2.2",
+    "nodemailer": "^6.4.17",
+    "objection": "^2.2.14",
+    "pg": "^8.5.1",
+    "postgres": "^1.0.2",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "maildev": "^1.1.0",
+    "nodemon": "^2.0.7"
+  }
+}
