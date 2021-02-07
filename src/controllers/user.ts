@@ -11,14 +11,11 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from 'utils';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 const refreshTokenLifeSpan = 86400; //24 hours in seconds
 
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const register = async (req: Request, res: Response) => {
   // 1-extract data from req
   // 2-generate salt
   // 3-generate password hash
@@ -38,90 +35,103 @@ export const register = async (
       country,
     } = req.body;
     let passwordHash = undefined;
-    if (password) passwordHash = await hashedPassword(password);
-    else if (!password && id) passwordHash = await hashedPassword(id);
+    if (password != '') passwordHash = await hashedPassword(password);
+    else if (password === '' && id != '')
+      passwordHash = await hashedPassword(id);
 
     const refreshToken = await generateRefreshToken(username);
 
     await User.query().insert({
-      username: username,
-      email: email,
+      username,
+      email,
       password: passwordHash,
       location: {
-        city: city,
-        state: state,
-        country: country,
+        city,
+        state,
+        country,
       },
-      age: age,
-      gender: gender,
-      refreshToken: refreshToken,
+      age,
+      gender,
+      refreshToken,
       expirationDate: new Date(
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
     });
     const user = await User.query()
       .select('id', 'username', 'email', 'location', 'age', 'gender')
-      .where('email', '=', email)
+      .where('email', email)
       .first();
 
     const accessToken = await generateAccessToken({ id: user.id });
 
-    const responseData = {
+    // 201 Created
+    res.status(201).send({
       user: user,
       accessToken: accessToken,
       refreshToken: refreshToken,
-    };
-    // 201 Created
-    res.status(201).send(responseData);
+    });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
       res.status(400).send({ message: 'username, email must be unique' });
-    else if (error instanceof objection.NotNullViolationError)
-      res.status(400).send({ message: 'empty fields are not allowed' });
+    if (error instanceof objection.NotNullViolationError)
+      res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
   }
 };
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  //   1-extract data from req
-  //   2-check database for user
+export const login = async (req: Request, res: Response) => {
+  //   1- extract data from req
+  //   2- check database for user
   //   3- check for password
-  //   4-generate token
-  //   5- send success of failure
+  //   4- generate token
+  //   5- renew refresh token
+  //   6- send success of failure
   try {
     const { id, email } = req.body;
     let { password } = req.body;
-
-    const user = await User.query()
-      .select('id', 'username', 'email', 'location', 'age', 'gender')
-      .where('email', '=', email)
-      .first();
+    if (!email) return res.status(400).send({ message: 'email required' });
+    let user = await User.query().findOne('email', email);
 
     //login with facebook state
-    if (id && !password) {
+    if (id != '' && password === '') {
       if (!user) {
-        register(req, res, next);
-        return;
+        await register(req, res);
       }
       password = id;
     }
+
+    if (!user || !password)
+      return res
+        .status(400)
+        .send({ message: 'email or password is not correct!' });
     const valid = await checkPassword(password, user.password);
     if (!valid)
-      res.status(400).send({ message: "username or password isn't correct" });
+      return res
+        .status(400)
+        .send({ message: 'email or password is not correct!' });
 
     const refreshToken = await generateRefreshToken(user.username);
     const accessToken = await generateAccessToken({ id: user.id });
-    const responseData = {
+
+    await User.query()
+      .findById(user.id)
+      .patch({
+        refreshToken: refreshToken,
+        expirationDate: new Date(
+          Date.now() + refreshTokenLifeSpan * 1000,
+        ).toISOString(),
+      });
+
+    user = await User.query()
+      .select('id', 'username', 'email', 'location', 'age', 'gender')
+      .where('email', email)
+      .first();
+
+    res.status(200).send({
       user: user,
       accessToken: accessToken,
-      refrechToken: refreshToken,
-    };
-
-    res.status(200).send(responseData);
+      refreshToken: refreshToken,
+    });
   } catch (error) {
     logger.error(error);
     res.status(400).send({
@@ -129,11 +139,7 @@ export const login = async (
     });
   }
 };
-export const forgetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const forgetPassword = async (req: Request, res: Response) => {
   //   1- extract data from req
   //   2- check for user existance
   //   3- setup mail settings
@@ -141,12 +147,12 @@ export const forgetPassword = async (
   //   5- success or failure
   try {
     const { email } = req.body;
-    const user = await User.query().findOne('email', '=', email);
-    if (!user) throw new Error('user not found');
+    if (!email) return res.status(400).send({ message: 'email required' });
+    const user = await User.query().findOne('email', email);
+    if (!user) return res.status(400).send({ message: 'user not found' });
 
     const token = await generateToken({ id: user.id }, 20 * 60); //20minutes
     const smtpTransport = nodemailer.createTransport({
-      //TODO: fill the smtp service options from gmail
       service: 'Gmail',
       auth: {
         user: 'zainkhatib9@gmail.com',
@@ -164,17 +170,13 @@ export const forgetPassword = async (
         '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
     };
     await smtpTransport.sendMail(mailinfo);
-    res.send('a link to your email has been sent');
+    res.send({ message: 'a link to your email has been sent' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
   }
 };
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const resetPassword = async (req: Request, res: Response) => {
   //1-extract data from body
   //2-check for token and user
   //3-update password
@@ -183,14 +185,15 @@ export const resetPassword = async (
     const { token, newPassword } = req.body;
 
     const data = await checkToken(token);
-    if (!data) throw new Error('link has expired');
+    if (!data) res.status(400).send({ message: 'token is invalid' });
+    if (!newPassword) res.status(400).send({ message: 'password is required' });
 
     const newHashedPassword = await hashedPassword(newPassword);
 
-    const user = User.query().findById(data.id).patch({
+    await User.query().findById(data.id).patch({
       password: newHashedPassword,
     });
-    res.send('password updated');
+    res.send({ message: 'password updated successfully!' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
