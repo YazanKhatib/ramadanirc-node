@@ -72,8 +72,8 @@ export const register = async (
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      res.status(400).send('username, email must be unique');
-    else res.status(400).send({ message: error.constraint });
+      res.status(400).send({ message: 'username, email must be unique' });
+    else res.status(400).send({ message: error.name });
   }
 };
 export const login = async (
@@ -86,30 +86,30 @@ export const login = async (
   //   3- check for password
   //   4-generate token
   //   5- send success of failure
-  var { id, email, password } = req.body;
-  const user = await User.query().findOne('email', '=', email);
-
-  //login with facebook state
-  if (id && !password) {
-    if (!user) register(req, res, next);
-    password = id;
-  }
-  const valid = await checkPassword(password, user.password);
-  if (!valid) throw new Error('username or password isnt correct');
-
-  const refreshToken = await generateRefreshToken(user.username);
-  const accessToken = await generateAccessToken({ id: user.id });
-  const responseData = {
-    //TODO:remove user from res
-    user: user,
-    accessToken: accessToken,
-    refrechToken: refreshToken,
-  };
-  res.status(200).send(responseData);
   try {
+    var { id, email, password } = req.body;
+    const user = await User.query().findOne('email', '=', email);
+
+    //login with facebook state
+    if (id && !password) {
+      if (!user) register(req, res, next);
+      password = id;
+    }
+    const valid = await checkPassword(password, user.password);
+    if (!valid) throw new Error('username or password isnt correct');
+
+    const refreshToken = await generateRefreshToken(user.username);
+    const accessToken = await generateAccessToken({ id: user.id });
+    const responseData = {
+      //TODO:remove user from res
+      user: user,
+      accessToken: accessToken,
+      refrechToken: refreshToken,
+    };
+    res.status(200).send(responseData);
   } catch (error) {
     logger.error(error);
-    res.send(400).send({
+    res.status(400).send({
       message: error.message,
     });
   }
@@ -127,18 +127,16 @@ export const forgetPassword = async (
   try {
     const { email } = req.body;
     const user = await User.query().findOne('email', '=', email);
-    if (!email) throw new Error('user not found');
+    if (!user) throw new Error('user not found');
 
-    const token = generateToken({ id: user.id }, 20 * 60); //20minutes
+    const token = await generateToken({ id: user.id }, 20 * 60); //20minutes
     const smtpTransport = nodemailer.createTransport({
-      //TODO: fill the smtp service options
-      // service: 'DebugMail',
-      // auth: {
-      //   user: 'da17953056@firemailbox.club',
-      //   pass: 'da17953056@firemailbox.club',
-      // },
-      host: 'localhost',
-      port: 1025,
+      //TODO: fill the smtp service options from gmail
+      service: 'Gmail',
+      auth: {
+        user: 'zainkhatib9@gmail.com',
+        pass: 'hshxcbmrpoeyprzc',
+      },
     });
     const mailinfo = {
       from: 'noreplay@ramadanapp.com',
@@ -147,14 +145,14 @@ export const forgetPassword = async (
       text:
         'You are reciving this because you (or someone else) have requested the reset of the password for your account. \n\n' +
         'Please click on the following link, or paste this into your browser to complete the process: \n\n' +
-        `http://${req.headers.host}/reset/%{token}` +
+        `http://${req.headers.host}/user/reset-password/${token}` +
         '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
     };
-    smtpTransport.sendMail(mailinfo);
+    await smtpTransport.sendMail(mailinfo);
     res.send('a link to your email has been sent');
   } catch (error) {
     logger.error(error);
-    res.status(400).send(error.message);
+    res.status(400).send({ message: error.message });
   }
 };
 export const resetPassword = async (
@@ -180,7 +178,7 @@ export const resetPassword = async (
     res.send('password updated');
   } catch (error) {
     logger.error(error);
-    res.status(400).send(error.message);
+    res.status(400).send({ message: error.message });
   }
 };
 //TODO: validators
