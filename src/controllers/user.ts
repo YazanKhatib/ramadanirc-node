@@ -43,7 +43,7 @@ export const register = async (
 
     const refreshToken = await generateRefreshToken(username);
 
-    const user = await User.query().insert({
+    await User.query().insert({
       username: username,
       email: email,
       password: passwordHash,
@@ -59,10 +59,14 @@ export const register = async (
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
     });
+    const user = await User.query()
+      .select('id', 'username', 'email', 'location', 'age', 'gender')
+      .where('email', '=', email)
+      .first();
+
     const accessToken = await generateAccessToken({ id: user.id });
 
     const responseData = {
-      //TODO : remove user form res
       user: user,
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -73,6 +77,8 @@ export const register = async (
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
       res.status(400).send({ message: 'username, email must be unique' });
+    else if (error instanceof objection.NotNullViolationError)
+      res.status(400).send({ message: 'empty fields are not allowed' });
     else res.status(400).send({ message: error.name });
   }
 };
@@ -89,24 +95,32 @@ export const login = async (
   try {
     const { id, email } = req.body;
     let { password } = req.body;
-    const user = await User.query().findOne('email', '=', email);
+
+    const user = await User.query()
+      .select('id', 'username', 'email', 'location', 'age', 'gender')
+      .where('email', '=', email)
+      .first();
 
     //login with facebook state
     if (id && !password) {
-      if (!user) register(req, res, next);
+      if (!user) {
+        register(req, res, next);
+        return;
+      }
       password = id;
     }
     const valid = await checkPassword(password, user.password);
-    if (!valid) throw new Error('username or password isnt correct');
+    if (!valid)
+      res.status(400).send({ message: "username or password isn't correct" });
 
     const refreshToken = await generateRefreshToken(user.username);
     const accessToken = await generateAccessToken({ id: user.id });
     const responseData = {
-      //TODO:remove user from res
       user: user,
       accessToken: accessToken,
       refrechToken: refreshToken,
     };
+
     res.status(200).send(responseData);
   } catch (error) {
     logger.error(error);
