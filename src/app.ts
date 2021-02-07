@@ -13,7 +13,7 @@ app.use(express.json());
 const init = async () => {
   try {
     await initializeDB();
-    logger.info('connection to DB established');
+    logger.info('Database connection established!');
   } catch (error) {
     logger.error(error.mesage);
   }
@@ -21,7 +21,6 @@ const init = async () => {
 init();
 app.use('/user', userRouter);
 
-const port = process.env.PORT || 3000;
-app.listen(port, async () => {
-  logger.info(`Listening on port ${port}`);
+app.listen(process.env.PORT || 4000, async () => {
+  logger.info(`🚀 Server ready at ${process.env.PORT}`);
 });
