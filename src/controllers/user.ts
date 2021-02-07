@@ -14,11 +14,7 @@ import {
 
 const refreshTokenLifeSpan = 86400; //24 hours in seconds
 
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const register = async (req: Request, res: Response) => {
   // 1-extract data from req
   // 2-generate salt
   // 3-generate password hash
@@ -44,43 +40,40 @@ export const register = async (
     const refreshToken = await generateRefreshToken(username);
 
     const user = await User.query().insert({
-      username: username,
-      email: email,
+      username,
+      email,
       password: passwordHash,
       location: {
-        city: city,
-        state: state,
-        country: country,
+        city,
+        state,
+        country,
       },
-      age: age,
-      gender: gender,
-      refreshToken: refreshToken,
+      age,
+      gender,
+      refreshToken,
       expirationDate: new Date(
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
     });
     const accessToken = await generateAccessToken({ id: user.id });
 
-    const responseData = {
+    // 201 Created
+    res.status(201).send({
       //TODO : remove user form res
       user: user,
       accessToken: accessToken,
       refreshToken: refreshToken,
-    };
-    // 201 Created
-    res.status(201).send(responseData);
+    });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
       res.status(400).send({ message: 'username, email must be unique' });
+    if (error instanceof objection.NotNullViolationError)
+      res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
   }
 };
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const login = async (req: Request, res: Response) => {
   //   1-extract data from req
   //   2-check database for user
   //   3- check for password
@@ -89,23 +82,26 @@ export const login = async (
   try {
     const { id, email } = req.body;
     let { password } = req.body;
-    const user = await User.query().findOne('email', '=', email);
+    const user = await User.query().findOne('email', email);
 
     //login with facebook state
     if (id && !password) {
-      if (!user) register(req, res, next);
+      if (!user) register(req, res);
       password = id;
     }
     const valid = await checkPassword(password, user.password);
-    if (!valid) throw new Error('username or password isnt correct');
+    if (!valid)
+      return res
+        .status(400)
+        .send({ message: 'username or password is not correct!' });
 
     const refreshToken = await generateRefreshToken(user.username);
     const accessToken = await generateAccessToken({ id: user.id });
     const responseData = {
       //TODO:remove user from res
-      user: user,
-      accessToken: accessToken,
-      refrechToken: refreshToken,
+      user,
+      accessToken,
+      refreshToken,
     };
     res.status(200).send(responseData);
   } catch (error) {
@@ -115,11 +111,7 @@ export const login = async (
     });
   }
 };
-export const forgetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const forgetPassword = async (req: Request, res: Response) => {
   //   1- extract data from req
   //   2- check for user existance
   //   3- setup mail settings
@@ -127,7 +119,7 @@ export const forgetPassword = async (
   //   5- success or failure
   try {
     const { email } = req.body;
-    const user = await User.query().findOne('email', '=', email);
+    const user = await User.query().findOne('email', email);
     if (!user) throw new Error('user not found');
 
     const token = await generateToken({ id: user.id }, 20 * 60); //20minutes
@@ -150,17 +142,13 @@ export const forgetPassword = async (
         '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
     };
     await smtpTransport.sendMail(mailinfo);
-    res.send('a link to your email has been sent');
+    res.send({ message: 'a link to your email has been sent' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
   }
 };
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const resetPassword = async (req: Request, res: Response) => {
   //1-extract data from body
   //2-check for token and user
   //3-update password
@@ -173,10 +161,10 @@ export const resetPassword = async (
 
     const newHashedPassword = await hashedPassword(newPassword);
 
-    const user = User.query().findById(data.id).patch({
+    await User.query().findById(data.id).patch({
       password: newHashedPassword,
     });
-    res.send('password updated');
+    res.send({ message: 'password updated successfully!' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
