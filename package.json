@@ -9,7 +9,7 @@
     "build": "tsc -p .",
     "migrate": "knex --knexfile=src/knexfile.ts migrate:latest",
     "rollback": "knex --knexfile=src/knexfile.ts migrate:rollback",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet"
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
   "_moduleAliases": {
     "utils": "src/utils",
