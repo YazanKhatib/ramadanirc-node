@@ -17,7 +17,7 @@ const refreshTokenLifeSpan = 86400; //24 hours in seconds
 export const register = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   // 1-extract data from req
   // 2-generate salt
@@ -37,7 +37,7 @@ export const register = async (
       state,
       country,
     } = req.body;
-    var passwordHash = undefined;
+    let passwordHash = undefined;
     if (password) passwordHash = await hashedPassword(password);
     else if (!password && id) passwordHash = await hashedPassword(id);
 
@@ -56,7 +56,7 @@ export const register = async (
       gender: gender,
       refreshToken: refreshToken,
       expirationDate: new Date(
-        Date.now() + refreshTokenLifeSpan * 1000
+        Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
     });
     const accessToken = await generateAccessToken({ id: user.id });
@@ -79,7 +79,7 @@ export const register = async (
 export const login = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   //   1-extract data from req
   //   2-check database for user
@@ -87,7 +87,8 @@ export const login = async (
   //   4-generate token
   //   5- send success of failure
   try {
-    var { id, email, password } = req.body;
+    const { id, email } = req.body;
+    let { password } = req.body;
     const user = await User.query().findOne('email', '=', email);
 
     //login with facebook state
@@ -117,7 +118,7 @@ export const login = async (
 export const forgetPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   //   1- extract data from req
   //   2- check for user existance
@@ -158,7 +159,7 @@ export const forgetPassword = async (
 export const resetPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   //1-extract data from body
   //2-check for token and user

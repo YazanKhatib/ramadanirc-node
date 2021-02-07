@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from 'express';
 export const verifyToken = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const token = req.header('authorization');
 
