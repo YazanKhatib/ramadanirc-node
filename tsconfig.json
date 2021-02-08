@@ -12,7 +12,8 @@
       "routes": ["routes"],
       "models": ["models"],
       "controllers": ["controllers"],
-      "database": ["database"]
+      "database": ["database"],
+      "middleware": ["middleware"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,

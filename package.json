@@ -9,14 +9,15 @@
     "build": "tsc -p .",
     "migrate": "knex --knexfile=src/knexfile.ts migrate:latest",
     "rollback": "knex --knexfile=src/knexfile.ts migrate:rollback",
-    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet"
+    "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
   "_moduleAliases": {
     "utils": "src/utils",
     "routes": "src/routes",
     "models": "src/models",
     "controllers": "src/controllers",
-    "database": "src/database"
+    "database": "src/database",
+    "middleware": "src/middleware"
   },
   "repository": {
     "type": "git",

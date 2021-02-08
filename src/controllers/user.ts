@@ -1,6 +1,6 @@
 import objection from 'objection';
 import nodemailer from 'nodemailer';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { User } from 'models';
 import {
   logger,
@@ -11,7 +11,6 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from 'utils';
-import { JsonWebTokenError } from 'jsonwebtoken';
 
 const refreshTokenLifeSpan = 86400; //24 hours in seconds
 
@@ -127,7 +126,7 @@ export const login = async (req: Request, res: Response) => {
       .where('email', email)
       .first();
 
-    res.status(200).send({
+    return res.status(200).send({
       user: user,
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -170,7 +169,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
         '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
     };
     await smtpTransport.sendMail(mailinfo);
-    res.send({ message: 'a link to your email has been sent' });
+    res.send({ success: 'a link to your email has been sent' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -178,14 +177,14 @@ export const forgetPassword = async (req: Request, res: Response) => {
 };
 export const resetPassword = async (req: Request, res: Response) => {
   //1-extract data from body
-  //2-check for token and user
+  //2-check for accesstoken and user
   //3-update password
   //4- send success or failure
   try {
-    const { token, newPassword } = req.body;
+    const { accessToken, newPassword } = req.body;
 
-    const data = await checkToken(token);
-    if (!data) res.status(400).send({ message: 'token is invalid' });
+    const data = await checkToken(accessToken);
+    if (!data) res.status(400).send({ message: 'access token is invalid' });
     if (!newPassword) res.status(400).send({ message: 'password is required' });
 
     const newHashedPassword = await hashedPassword(newPassword);
@@ -193,12 +192,32 @@ export const resetPassword = async (req: Request, res: Response) => {
     await User.query().findById(data.id).patch({
       password: newHashedPassword,
     });
-    res.send({ message: 'password updated successfully!' });
+    res.send({ success: 'password updated successfully!' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
   }
 };
+export const profile = async (req: Request, res: Response) => {
+  try {
+    const { accessToken } = req.body;
+    const data = await checkToken(accessToken);
+    const user = await User.query()
+      .select('id', 'username', 'email', 'location', 'age', 'gender')
+      .where('id', data.id)
+      .first();
+
+    if (!user) return res.status(400).send({ message: "user doesn't exist" });
+    else
+      return res.send({
+        user: user,
+      });
+  } catch (error) {
+    logger.error(error);
+    res.status(400).send({ message: error.message });
+  }
+};
+
 //TODO: validators
 // id must be an id of facebook user
 // typical validator for input fields

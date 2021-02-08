@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { logger } from './logger';
 const secret = 'MY_TOKEN_SECRET';
 export const generateAccessToken = async (data: object) => {
   const token = jwt.sign(data, secret, { expiresIn: 15 * 60 }); // 15 minutes
@@ -22,4 +23,9 @@ export const generateRefreshToken = async (username: string) => {
 export const checkToken = async (token: string) => {
   const decodedToken: any = jwt.verify(token, secret);
   return decodedToken;
+};
+
+export const tokenIsExpired = async (token: string) => {
+  const decodedToken: any = jwt.decode(token);
+  return decodedToken.exp < Date.now() / 1000;
 };
