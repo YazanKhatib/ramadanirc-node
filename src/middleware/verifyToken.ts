@@ -8,7 +8,8 @@ export const verifyToken = async (
   next: NextFunction,
 ) => {
   try {
-    const { accessToken, refreshToken } = req.body;
+    const accessToken = req.header('accessToken');
+    const refreshToken = req.header('refreshToken');
 
     if (
       accessToken &&

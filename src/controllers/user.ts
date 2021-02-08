@@ -181,7 +181,8 @@ export const resetPassword = async (req: Request, res: Response) => {
   //3-update password
   //4- send success or failure
   try {
-    const { accessToken, newPassword } = req.body;
+    const accessToken = req.params.accessToken;
+    const { newPassword } = req.body;
 
     const data = await checkToken(accessToken);
     if (!data) res.status(400).send({ message: 'access token is invalid' });
@@ -200,7 +201,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 export const profile = async (req: Request, res: Response) => {
   try {
-    const { accessToken } = req.body;
+    const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query()
       .select('id', 'username', 'email', 'location', 'age', 'gender')
