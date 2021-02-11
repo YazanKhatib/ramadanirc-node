@@ -5,7 +5,8 @@ import {
   login,
   resetPassword,
   forgetPassword,
-  profile,
+  getProfile,
+  postProfile,
 } from 'controllers';
 
 const router = Router();
@@ -14,6 +15,8 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/reset-password/:accessToken', resetPassword);
 router.post('/forget-password', forgetPassword);
-router.post('/porfile', verifyToken, profile);
+router.post('/profile', verifyToken, postProfile);
+
+router.get('/profile', verifyToken, getProfile);
 
 export { router as userRouter };

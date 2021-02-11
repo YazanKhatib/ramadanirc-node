@@ -14,6 +14,13 @@ import {
 
 const refreshTokenLifeSpan = 86400; //24 hours in seconds
 
+const returnUser = async (matchName, matchData) => {
+  const user = await User.query()
+    .select('id', 'username', 'email', 'location', 'age', 'gender')
+    .where(matchName, matchData)
+    .first();
+  return user;
+};
 export const register = async (req: Request, res: Response) => {
   // 1-extract data from req
   // 2-generate salt
@@ -56,10 +63,7 @@ export const register = async (req: Request, res: Response) => {
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
     });
-    const user = await User.query()
-      .select('id', 'username', 'email', 'location', 'age', 'gender')
-      .where('email', email)
-      .first();
+    const user = await returnUser('email', email);
 
     const accessToken = await generateAccessToken({ id: user.id });
 
@@ -121,10 +125,7 @@ export const login = async (req: Request, res: Response) => {
         ).toISOString(),
       });
 
-    user = await User.query()
-      .select('id', 'username', 'email', 'location', 'age', 'gender')
-      .where('email', email)
-      .first();
+    user = await returnUser('email', email);
 
     return res.status(200).send({
       user: user,
@@ -199,14 +200,11 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(400).send({ message: error.message });
   }
 };
-export const profile = async (req: Request, res: Response) => {
+export const getProfile = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
-    const user = await User.query()
-      .select('id', 'username', 'email', 'location', 'age', 'gender')
-      .where('id', data.id)
-      .first();
+    const user = await returnUser('id', data.id);
 
     if (!user) return res.status(400).send({ message: "user doesn't exist" });
     else
@@ -216,6 +214,51 @@ export const profile = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
+  }
+};
+export const postProfile = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const {
+      username,
+      password,
+      email,
+      age,
+      gender,
+      city,
+      state,
+      country,
+    } = req.body;
+
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+
+    if (!user) return res.status(400).send({ message: "user doesn't exist" });
+    await User.query().patchAndFetchById(data.id, {
+      username: username,
+      email: email,
+      age: age,
+      gender: gender,
+      location: {
+        city: city,
+        state: state,
+        country: country,
+      },
+    });
+    if (password && password != '')
+      await User.query().patch({
+        password: await hashedPassword(password),
+      });
+    return res.send({ user: await returnUser('id', data.id) });
+  } catch (error) {
+    logger.error(error);
+    if (error instanceof objection.UniqueViolationError)
+      return res
+        .status(400)
+        .send({ message: 'username, email must be unique' });
+    if (error instanceof objection.NotNullViolationError)
+      return res.status(400).send({ message: `${error.column} is required` });
+    return res.status(400).send({ message: error.name });
   }
 };
 
