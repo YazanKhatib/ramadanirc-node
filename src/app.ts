@@ -9,7 +9,6 @@ const app: Application = express();
 
 dotenv.config();
 
-app.use(express.json());
 const init = async () => {
   try {
     await initializeDB();
@@ -19,6 +18,9 @@ const init = async () => {
   }
 };
 init();
+
+app.use(express.json());
+app.use('/public', express.static('public'));
 app.use('/user', userRouter);
 
 app.listen(process.env.PORT || 4000, async () => {
