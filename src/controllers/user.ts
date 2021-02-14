@@ -36,9 +36,8 @@ export const register = async (req: Request, res: Response) => {
       password,
       age,
       gender,
-      city,
-      state,
-      country,
+      location,
+      adminSecret,
     } = req.body;
     let passwordHash = undefined;
     if (password != '') passwordHash = await hashedPassword(password);
@@ -46,17 +45,14 @@ export const register = async (req: Request, res: Response) => {
       passwordHash = await hashedPassword(id);
 
     const refreshToken = await generateRefreshToken(username);
-
+    const admin = adminSecret === process.env.adminSecret;
     await User.query().insert({
       username,
       email,
       password: passwordHash,
-      location: {
-        city,
-        state,
-        country,
-      },
+      location,
       age,
+      admin,
       gender,
       refreshToken,
       expirationDate: new Date(
@@ -156,7 +152,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
       service: 'Gmail',
       auth: {
         user: 'zainkhatib9@gmail.com',
-        pass: 'hshxcbmrpoeyprzc',
+        pass: 'pmclkvbjhhckhaam',
       },
     });
     const mailinfo = {
@@ -166,7 +162,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
       text:
         'You are reciving this because you (or someone else) have requested the reset of the password for your account. \n\n' +
         'Please click on the following link, or paste this into your browser to complete the process: \n\n' +
-        `http://${req.headers.host}/user/reset-password/${token}` +
+        `<a href="http://${req.headers.host}/user/reset-password/${token}">Click here <a>` +
         '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
     };
     await smtpTransport.sendMail(mailinfo);
@@ -219,16 +215,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const postProfile = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const {
-      username,
-      password,
-      email,
-      age,
-      gender,
-      city,
-      state,
-      country,
-    } = req.body;
+    const { username, password, email, age, gender, location } = req.body;
 
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
@@ -239,11 +226,7 @@ export const postProfile = async (req: Request, res: Response) => {
       email: email,
       age: age,
       gender: gender,
-      location: {
-        city: city,
-        state: state,
-        country: country,
-      },
+      location: location,
     });
     if (password && password != '')
       await User.query().patch({

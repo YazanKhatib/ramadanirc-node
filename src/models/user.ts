@@ -1,11 +1,13 @@
 import { Model } from 'objection';
+import { Task } from 'models';
 
 export class User extends Model {
   readonly id!: number;
   username!: string;
   email!: string;
   password!: string;
-  location?: object;
+  admin?: boolean;
+  location?: string;
   age?: number;
   gender?: string;
   refreshToken!: string;
@@ -21,14 +23,8 @@ export class User extends Model {
         username: { type: 'string' },
         email: { type: 'string' },
         password: { type: 'string' },
-        location: {
-          type: 'object',
-          properties: {
-            city: { type: 'string' },
-            state: { type: 'string' },
-            country: { type: 'string' },
-          },
-        },
+        admin: { type: 'boolean' },
+        location: { type: 'string' },
         age: { type: 'number' },
         gender: { type: 'string' },
         refreshToken: { type: 'string' },
@@ -44,7 +40,21 @@ export class User extends Model {
     };
   }
   // TODO: user relation mappings
-  //   static get relationMappings() {
-  //     return {};
-  //   }
+  static get relationMappings() {
+    return {
+      tasks: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Task,
+        join: {
+          from: 'users.id',
+          through: {
+            from: 'users_tasks.userId',
+            to: 'users_tasks.taskId',
+            extra: ['value', 'createdAt'],
+          },
+          to: 'tasks.id',
+        },
+      },
+    };
+  }
 }
