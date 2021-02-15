@@ -104,3 +104,23 @@ export const userTasks = async (req: Request, res: Response) => {
       .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
   res.send({ tasks: tasks });
 };
+export const checkTask = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const { id } = req.body;
+    if (!id || id === '')
+      return res.status(400).send({ message: 'id is required' });
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    const input: any = {
+      id: id,
+      value: true,
+      createdAt: new Date(Date.now()).toISOString(),
+    };
+    await user.$relatedQuery('tasks').relate(input);
+    return res.send({ success: 'task has been checked.' });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};

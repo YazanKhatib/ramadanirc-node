@@ -6,6 +6,7 @@ import {
   userTasks,
   updateTask,
   deleteTask,
+  checkTask,
 } from 'controllers';
 const router = Router();
 
@@ -19,5 +20,6 @@ router.post('/update', verifyToken, verifyAdmin, updateTask);
 
 //user routes
 router.post('/myTasks', verifyToken, userTasks);
+router.post('/check', verifyToken, checkTask);
 
 export { router as taskRouter };
