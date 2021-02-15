@@ -11,7 +11,7 @@ import {
 const router = Router();
 
 //admin routes
-router.get('/', verifyToken, verifyAdmin, getTask);
+
 router.get('/:id(\\d)', verifyToken, verifyAdmin, getTask);
 router.get('/delete/:id', verifyToken, verifyAdmin, deleteTask);
 
@@ -22,4 +22,6 @@ router.post('/update', verifyToken, verifyAdmin, updateTask);
 router.post('/myTasks', verifyToken, userTasks);
 router.post('/check', verifyToken, checkTask);
 
+//common routes
+router.get('/', verifyToken, getTask);
 export { router as taskRouter };

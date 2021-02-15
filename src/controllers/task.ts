@@ -82,28 +82,38 @@ export const updateTask = async (req: Request, res: Response) => {
 };
 
 export const userTasks = async (req: Request, res: Response) => {
-  const accessToken = req.header('accessToken');
-  const { type, value } = req.body;
-  const data = await checkToken(accessToken);
-  const user = User.query().findById(data.id);
-  let tasks;
-  const date = new Date(value);
-  if (type === 'day')
-    tasks = await (await user)
-      .$relatedQuery('tasks')
-      .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
-      )
-      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
+  try {
+    const accessToken = req.header('accessToken');
+    const { type, value } = req.body;
+    const data = await checkToken(accessToken);
+    const user = User.query().findById(data.id);
+    let tasks;
+    const date = new Date(value);
+    if (type === 'day')
+      tasks = await (await user)
+        .$relatedQuery('tasks')
+        .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
+        .andWhereRaw(
+          `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
+        )
+        .andWhereRaw(
+          `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
+        );
 
-  if (type === 'month')
-    tasks = await (await user)
-      .$relatedQuery('tasks')
-      .whereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
-  res.send({ tasks: tasks });
+    if (type === 'month')
+      tasks = await (await user)
+        .$relatedQuery('tasks')
+        .whereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
+        .andWhereRaw(
+          `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
+        );
+    res.send({ tasks: tasks });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
 };
+
 export const checkTask = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
@@ -112,12 +122,30 @@ export const checkTask = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const input: any = {
-      id: id,
-      value: true,
-      createdAt: new Date(Date.now()).toISOString(),
-    };
-    await user.$relatedQuery('tasks').relate(input);
+    const task = await user
+      .$relatedQuery('tasks')
+      .findById(id)
+      .whereRaw(
+        `EXTRACT(DAY FROM "createdAt") = ${new Date(Date.now()).getUTCDate()}`,
+      )
+      .andWhereRaw(
+        `EXTRACT(MONTH FROM "createdAt") = ${
+          new Date(Date.now()).getUTCMonth() + 1
+        }`,
+      )
+      .andWhereRaw(
+        `EXTRACT(YEAR FROM "createdAt") = ${new Date(
+          Date.now(),
+        ).getUTCFullYear()}`,
+      );
+    if (!task) {
+      const input: any = {
+        id: id,
+        value: true,
+        createdAt: new Date(Date.now()).toISOString(),
+      };
+      await user.$relatedQuery('tasks').relate(input);
+    }
     return res.send({ success: 'task has been checked.' });
   } catch (error) {
     logger.error(error);

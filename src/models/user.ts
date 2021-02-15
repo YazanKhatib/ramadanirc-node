@@ -1,5 +1,6 @@
 import { Model } from 'objection';
 import { Task } from 'models';
+import { Prayer } from './prayer';
 
 export class User extends Model {
   readonly id!: number;
@@ -53,6 +54,19 @@ export class User extends Model {
             extra: ['value', 'createdAt'],
           },
           to: 'tasks.id',
+        },
+      },
+      prayers: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Prayer,
+        join: {
+          from: 'users.id',
+          through: {
+            from: 'users_prayers.userId',
+            to: 'users_prayers.prayerId',
+            extra: ['rakats', 'prayedAt'],
+          },
+          to: 'prayers.id',
         },
       },
     };

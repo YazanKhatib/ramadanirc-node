@@ -25,9 +25,24 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('taskId').references('id').inTable('tasks');
       table.boolean('value').defaultTo(false);
       table.timestamp('createdAt').notNullable();
+    })
+    .createTable('prayers', (table) => {
+      table.increments('id').primary();
+      table.string('name').unique().notNullable();
+    })
+    .createTable('users_prayers', (table) => {
+      table.integer('userId').references('id').inTable('users');
+      table.integer('prayerId').references('id').inTable('prayers');
+      table.integer('rakats').defaultTo(0);
+      table.timestamp('prayedAt').notNullable();
     });
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropTableIfExists('users').dropTableIfExists('tasks');
+  return knex.schema
+    .dropTableIfExists('users_tasks')
+    .dropTableIfExists('users_prayers')
+    .dropTableIfExists('users')
+    .dropTableIfExists('prayers')
+    .dropTableIfExists('tasks');
 }
