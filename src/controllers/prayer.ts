@@ -57,6 +57,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
         ).getUTCFullYear()}`,
       );
     if (!prayer) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
         id: id,
         rakats: rakats,
@@ -64,6 +65,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
       };
       await user.$relatedQuery('prayers').relate(input);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
         rakats: rakats,
       };

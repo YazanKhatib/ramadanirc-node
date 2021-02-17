@@ -1,6 +1,8 @@
 import { Model } from 'objection';
 import { Task } from 'models';
 import { Prayer } from './prayer';
+import { QuranTracker } from './quran';
+import { DailyQuran } from './dailyQuran';
 
 export class User extends Model {
   readonly id!: number;
@@ -40,7 +42,6 @@ export class User extends Model {
       ],
     };
   }
-  // TODO: user relation mappings
   static get relationMappings() {
     return {
       tasks: {
@@ -67,6 +68,22 @@ export class User extends Model {
             extra: ['rakats', 'prayedAt'],
           },
           to: 'prayers.id',
+        },
+      },
+      quranTracker: {
+        relation: Model.HasOneRelation,
+        modelClass: QuranTracker,
+        join: {
+          from: 'users.id',
+          to: 'quran_tracker.userId',
+        },
+      },
+      dailyQuran: {
+        relation: Model.HasManyRelation,
+        modelClass: DailyQuran,
+        join: {
+          from: 'users.id',
+          to: 'daily_quran.userId',
         },
       },
     };
