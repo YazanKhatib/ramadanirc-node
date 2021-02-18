@@ -1,8 +1,5 @@
 import { Model } from 'objection';
-import { Task } from 'models';
-import { Prayer } from './prayer';
-import { QuranTracker } from './quran';
-import { DailyQuran } from './dailyQuran';
+import { Task, Prayer, QuranTracker, DailyQuran, Tidbit } from 'models';
 
 export class User extends Model {
   readonly id!: number;
@@ -84,6 +81,18 @@ export class User extends Model {
         join: {
           from: 'users.id',
           to: 'daily_quran.userId',
+        },
+      },
+      tidbits: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Tidbit,
+        join: {
+          from: 'users.id',
+          through: {
+            from: 'favorites_tidbits.userId',
+            to: 'favorites_tidbits.tidbitId',
+          },
+          to: 'tidbits.id',
         },
       },
     };

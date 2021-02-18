@@ -30,4 +30,27 @@ export async function seed(knex: Knex): Promise<void> {
     { name: 'Helped someone out', fixed: true },
     { name: 'Asked for forgiveness', fixed: true },
   ]);
+
+  await knex('tidbits').insert([
+    {
+      text:
+        'one Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
+    },
+    {
+      text:
+        'two Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
+    },
+    {
+      text:
+        'three Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
+    },
+    {
+      text:
+        'four Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
+    },
+    {
+      text:
+        'five Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
+    },
+  ]);
 }

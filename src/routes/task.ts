@@ -12,7 +12,7 @@ const router = Router();
 
 //admin routes
 
-router.get('/:id(\\d)', verifyToken, verifyAdmin, getTask);
+router.get('/:id(\\d+)', verifyToken, verifyAdmin, getTask);
 router.get('/delete/:id', verifyToken, verifyAdmin, deleteTask);
 
 router.post('/add', verifyToken, verifyAdmin, addTask);

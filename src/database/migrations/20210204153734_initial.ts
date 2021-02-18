@@ -48,6 +48,18 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('userId').references('id').inTable('users');
       table.boolean('value').defaultTo(false);
       table.timestamp('readAt').defaultTo(null);
+    })
+    .createTable('tidbits', (table) => {
+      table.increments('id').primary();
+      table.text('text').defaultTo('');
+    })
+    .createTable('favorites_tidbits', (table) => {
+      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('tidbitId')
+        .references('id')
+        .inTable('tidbits')
+        .onDelete('CASCADE');
     });
 }
 
@@ -56,7 +68,9 @@ export async function down(knex: Knex): Promise<void> {
     .dropTableIfExists('users_tasks')
     .dropTableIfExists('users_prayers')
     .dropTableIfExists('daily_quran')
-    .dropTableIfExists('quran')
+    .dropTableIfExists('favorites_tidbits')
+    .dropTableIfExists('quran_tracker')
+    .dropTableIfExists('tidbits')
     .dropTableIfExists('prayers')
     .dropTableIfExists('tasks')
     .dropTableIfExists('users');
