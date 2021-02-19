@@ -60,6 +60,20 @@ export async function up(knex: Knex): Promise<void> {
         .references('id')
         .inTable('tidbits')
         .onDelete('CASCADE');
+    })
+    .createTable('duas', (table) => {
+      table.increments('id').primary();
+      table.text('textArabic').defaultTo('');
+      table.text('textInbetween').defaultTo('');
+      table.text('textEnglish').defaultTo('');
+    })
+    .createTable('favorites_duas', (table) => {
+      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('duaId')
+        .references('id')
+        .inTable('duas')
+        .onDelete('CASCADE');
     });
 }
 
@@ -70,6 +84,8 @@ export async function down(knex: Knex): Promise<void> {
     .dropTableIfExists('daily_quran')
     .dropTableIfExists('favorites_tidbits')
     .dropTableIfExists('quran_tracker')
+    .dropTableIfExists('favorites_duas')
+    .dropTableIfExists('duas')
     .dropTableIfExists('tidbits')
     .dropTableIfExists('prayers')
     .dropTableIfExists('tasks')

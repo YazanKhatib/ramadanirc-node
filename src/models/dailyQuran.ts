@@ -1,5 +1,5 @@
 import { Model } from 'objection';
-import { User } from './user';
+import { User } from 'models';
 
 export class DailyQuran extends Model {
   readonly id!: number;

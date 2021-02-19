@@ -1,5 +1,6 @@
-import { Model } from 'objection';
+import Objection, { Model } from 'objection';
 import { Task, Prayer, QuranTracker, DailyQuran, Tidbit } from 'models';
+import { Dua } from './dua';
 
 export class User extends Model {
   readonly id!: number;
@@ -93,6 +94,18 @@ export class User extends Model {
             to: 'favorites_tidbits.tidbitId',
           },
           to: 'tidbits.id',
+        },
+      },
+      duas: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Dua,
+        join: {
+          from: 'users.id',
+          through: {
+            from: 'favorites_duas.userId',
+            to: 'favorites_duas.duaId',
+          },
+          to: 'duas.id',
         },
       },
     };
