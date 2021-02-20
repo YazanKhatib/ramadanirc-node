@@ -21,14 +21,54 @@ export async function seed(knex: Knex): Promise<void> {
   ]);
 
   await knex('tasks').insert([
-    { name: 'Smiled at someone', fixed: true },
-    { name: 'Gave charity', fixed: true },
-    { name: 'Learned something new', fixed: true },
-    { name: 'Fed a hungry person', fixed: true },
-    { name: 'Prayed in congregation', fixed: true },
-    { name: 'Read my daily adhkaar', fixed: true },
-    { name: 'Helped someone out', fixed: true },
-    { name: 'Asked for forgiveness', fixed: true },
+    {
+      name: 'Smiled at someone',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Gave charity',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Learned something new',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Fed a hungry person',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Prayed in congregation',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Read my daily adhkaar',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Helped someone out',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
+    {
+      name: 'Asked for forgiveness',
+      fixed: true,
+      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
+      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+    },
   ]);
 
   await knex('tidbits').insert([
