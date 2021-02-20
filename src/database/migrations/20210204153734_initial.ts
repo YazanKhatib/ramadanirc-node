@@ -19,6 +19,8 @@ export async function up(knex: Knex): Promise<void> {
       table.string('name', 255).unique().notNullable();
       table.boolean('fixed').defaultTo(false);
       table.timestamp('endDate').nullable();
+      table.string('selectedIcon').nullable();
+      table.string('notSelectedIcon').nullable();
     })
     .createTable('users_tasks', (table) => {
       table.integer('userId').references('id').inTable('users');

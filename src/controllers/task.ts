@@ -1,8 +1,10 @@
 import { Task, User } from 'models';
-import { Response, Request } from 'express';
+import { Response, Request, NextFunction } from 'express';
 import { checkToken, logger } from 'utils';
 import objection from 'objection';
 
+//ADMIN
+//=======
 export const getTask = async (req: Request, res: Response) => {
   const id = req.params.id;
   let tasks;
@@ -21,7 +23,7 @@ export const getTask = async (req: Request, res: Response) => {
 
 export const addTask = async (req: Request, res: Response) => {
   try {
-    const { name, fixed } = req.body;
+    const { name, fixed, selectedIcon, notSelectedIcon } = req.body;
     const task = await Task.query().findOne('name', name);
     if (task) {
       await Task.query().findById(task.id).patch({
@@ -31,6 +33,8 @@ export const addTask = async (req: Request, res: Response) => {
       await Task.query().insert({
         name: name,
         fixed: fixed,
+        selectedIcon: selectedIcon,
+        notSelectedIcon: notSelectedIcon,
       });
     }
     return res.status(201).send({ success: 'task had been added' });
@@ -65,10 +69,12 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   try {
-    const { id, name, fixed } = req.body;
+    const { id, name, fixed, selectedIcon, notSelectedIcon } = req.body;
     await Task.query().findById(id).patch({
       name: name,
       fixed: fixed,
+      selectedIcon,
+      notSelectedIcon,
     });
     return res.send({ success: 'task has been modified.' });
   } catch (error) {
@@ -81,17 +87,28 @@ export const updateTask = async (req: Request, res: Response) => {
   }
 };
 
-export const userTasks = async (req: Request, res: Response) => {
-  try {
-    const accessToken = req.header('accessToken');
-    const { type, value } = req.body;
-    const data = await checkToken(accessToken);
-    const user = User.query().findById(data.id);
-    let tasks;
-    const date = new Date(value);
-    if (type === 'day')
-      tasks = await (await user)
+//USER FUNC
+export const fillTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const accessToken = req.header('accessToken');
+  const data = await checkToken(accessToken);
+  const user = await User.query().findById(data.id);
+  const { value } = req.body;
+  const date = new Date(value);
+  const tasks = await user
+    .$relatedQuery('tasks')
+    .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
+    .andWhereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
+    .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
+  const allTasks = await Task.query();
+  if (allTasks.length !== tasks.length) {
+    await allTasks.forEach(async (task: Task) => {
+      const tempTask = await user
         .$relatedQuery('tasks')
+        .findById(task.id)
         .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
         .andWhereRaw(
           `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
@@ -99,14 +116,33 @@ export const userTasks = async (req: Request, res: Response) => {
         .andWhereRaw(
           `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
         );
+      if (!tempTask) {
+        const input: any = {
+          id: task.id,
+          createdAt: date.toISOString(),
+        };
+        await user.$relatedQuery('tasks').relate(input);
+      }
+    });
+  }
+  next();
+};
+export const userTasks = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const { value } = req.body;
+    const data = await checkToken(accessToken);
+    const user = User.query().findById(data.id);
+    const date = new Date(value);
 
-    if (type === 'month')
-      tasks = await (await user)
-        .$relatedQuery('tasks')
-        .whereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
-        .andWhereRaw(
-          `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
-        );
+    const tasks = await (await user)
+      .$relatedQuery('tasks')
+      .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
+      .andWhereRaw(
+        `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
+      )
+      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
+      .orderBy('id');
     res.send({ tasks: tasks });
   } catch (error) {
     logger.error(error);
@@ -138,13 +174,17 @@ export const checkTask = async (req: Request, res: Response) => {
           Date.now(),
         ).getUTCFullYear()}`,
       );
+    let input: any;
     if (!task) {
-      const input: any = {
+      input = {
         id: id,
         value: true,
         createdAt: new Date(Date.now()).toISOString(),
       };
       await user.$relatedQuery('tasks').relate(input);
+    } else {
+      input = { value: true };
+      await user.$relatedQuery('tasks').findById(id).patch(input);
     }
     return res.send({ success: 'task has been checked.' });
   } catch (error) {

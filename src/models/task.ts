@@ -6,6 +6,8 @@ export class Task extends Model {
   name!: string;
   fixed?: boolean;
   endDate?: string;
+  selectedIcon?: string;
+  notSelectedIcon?: string;
 
   static get tableName() {
     return 'tasks';
