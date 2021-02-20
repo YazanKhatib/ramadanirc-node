@@ -26,7 +26,7 @@ export const verifyToken = async (
     if (!user)
       return res.status(400).send({ message: 'user must login first.' });
 
-    const expired = +user.expirationDate < Date.now();
+    const expired = new Date(user.expirationDate).getTime() < Date.now();
 
     if (expired)
       return res.status(400).send({ message: 'user must login first.' });

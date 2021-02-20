@@ -6,18 +6,18 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('tasks').del();
   // Inserts seed entries
   await knex('prayers').insert([
-    { name: 'FAJR' },
-    { name: 'DHUHR' },
-    { name: 'ASR' },
-    { name: 'MAGHRIB' },
-    { name: 'ISHA' },
-    { name: 'FAJR SUNNAH' },
-    { name: 'DHUHR SUNNAH' },
-    { name: 'ASR SUNNAH' },
-    { name: 'MAGHRIB SUNNAH' },
-    { name: 'ISHA SUNNAH' },
-    { name: 'TARAWEEH' },
-    { name: 'QIYAM' },
+    { name: 'FAJR', type: 'FARD' },
+    { name: 'DHUHR', type: 'FARD' },
+    { name: 'ASR', type: 'FARD' },
+    { name: 'MAGHRIB', type: 'FARD' },
+    { name: 'ISHA', type: 'FARD' },
+    { name: 'SUNNAH', type: 'SUNNAH' },
+    { name: 'SUNNAH', type: 'SUNNAH' },
+    { name: 'SUNNAH', type: 'SUNNAH' },
+    { name: 'SUNNAH', type: 'SUNNAH' },
+    { name: 'SUNNAH', type: 'SUNNAH' },
+    { name: 'TARAWEEH', type: 'TARAWEEH' },
+    { name: 'QIYAM', type: 'QIYAM' },
   ]);
 
   await knex('tasks').insert([

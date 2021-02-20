@@ -1,4 +1,4 @@
-import Objection, { Model } from 'objection';
+import { Model } from 'objection';
 import { Task, Prayer, QuranTracker, DailyQuran, Tidbit } from 'models';
 import { Dua } from './dua';
 
@@ -25,9 +25,9 @@ export class User extends Model {
         email: { type: 'string' },
         password: { type: 'string' },
         admin: { type: 'boolean' },
-        location: { type: 'string' },
-        age: { type: 'number' },
-        gender: { type: 'string' },
+        location: { type: ['string', 'null'] },
+        age: { type: ['number', 'null'] },
+        gender: { type: ['string', 'null'] },
         refreshToken: { type: 'string' },
         expirationDate: { type: 'string' },
       },
@@ -63,7 +63,7 @@ export class User extends Model {
           through: {
             from: 'users_prayers.userId',
             to: 'users_prayers.prayerId',
-            extra: ['rakats', 'prayedAt'],
+            extra: ['value', 'selected', 'prayedAt'],
           },
           to: 'prayers.id',
         },

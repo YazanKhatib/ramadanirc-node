@@ -4,6 +4,7 @@ import { User } from './user';
 export class Prayer extends Model {
   readonly id!: number;
   name!: string;
+  type?: string;
 
   static get tableName() {
     return 'prayers';
@@ -18,7 +19,7 @@ export class Prayer extends Model {
           through: {
             from: 'users_prayers.prayerId',
             to: 'users_prayers.userId',
-            extra: ['rakats', 'prayedAt'],
+            extra: ['value', 'selected', 'prayedAt'],
           },
           to: 'users.id',
         },

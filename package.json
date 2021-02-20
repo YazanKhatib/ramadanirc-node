@@ -8,7 +8,7 @@
     "dev": "nodemon --exec ts-node src/app.ts",
     "build": "tsc -p .",
     "migrate": "knex --knexfile=src/knexfile.ts migrate:latest",
-    "down":"knex --knexfile=src/knexfile.ts migrate:down",
+    "down": "knex --knexfile=src/knexfile.ts migrate:down",
     "seed": "knex --knexfile=src/knexfile.ts seed:run",
     "rollback": "knex --knexfile=src/knexfile.ts migrate:rollback",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"

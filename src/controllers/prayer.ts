@@ -1,16 +1,38 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { checkToken, logger } from 'utils';
 import { Prayer, User } from 'models';
 import { ForeignKeyViolationError } from 'objection';
-
-export const getPrayers = async (req: Request, res: Response) => {
-  try {
-    const prayers = await Prayer.query();
-    return res.send({ prayers: prayers });
-  } catch (error) {
-    logger.error(error);
-    return res.send({ message: error.message });
+export const fillPrayer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const accessToken = req.header('accessToken');
+  const data = await checkToken(accessToken);
+  const user = await User.query().findById(data.id);
+  const { value } = req.body;
+  const date = new Date(value);
+  const prayers = await user
+    .$relatedQuery('prayers')
+    .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
+    .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
+    .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`);
+  const allPrayers = await Prayer.query();
+  if (prayers.length !== allPrayers.length) {
+    await allPrayers.forEach(async (prayer: Prayer) => {
+      const tempPrayer = await user
+        .$relatedQuery('prayers')
+        .findById(prayer.id);
+      if (!tempPrayer) {
+        const input: any = {
+          id: prayer.id,
+          prayedAt: new Date(Date.now()).toISOString(),
+        };
+        await user.$relatedQuery('prayers').relate(input);
+      }
+    });
   }
+  next();
 };
 export const userPrayers = async (req: Request, res: Response) => {
   try {
@@ -20,13 +42,22 @@ export const userPrayers = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const date = new Date(value);
-    logger.info(date.getUTCDate());
     const prayers = await user
       .$relatedQuery('prayers')
       .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
       .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
       .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`);
-    return res.send({ prayers: prayers });
+    const fared = prayers.filter((value: Prayer) => value.type === 'FARD');
+    const sunnah = prayers.filter((value: Prayer) => value.type === 'SUNNAH');
+    const taraweeh = prayers.filter(
+      (value: Prayer) => value.type === 'TARAWEEH',
+    );
+    const qiyam = prayers.filter((value: Prayer) => value.type === 'QIYAM');
+    return res.send({
+      prayers: [
+        { fared: fared, sunnah: sunnah, taraweeh: taraweeh, qiyam: qiyam },
+      ],
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: 'invalid date format' });
@@ -35,9 +66,9 @@ export const userPrayers = async (req: Request, res: Response) => {
 export const checkPrayer = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { id, rakats } = req.body;
-    if (!id || id === '' || !rakats || rakats === '')
-      return res.status(400).send({ message: 'id and rakats are required' });
+    const { id, selected, value } = req.body;
+    if (!id || id === '')
+      return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const prayer = await user
@@ -60,14 +91,16 @@ export const checkPrayer = async (req: Request, res: Response) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
         id: id,
-        rakats: rakats,
+        value: value ?? +(selected === true),
+        selected: selected ?? value > 0,
         prayedAt: new Date(Date.now()).toISOString(),
       };
       await user.$relatedQuery('prayers').relate(input);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
-        rakats: rakats,
+        value: value ?? +(selected === true),
+        selected: selected ?? value > 0,
       };
       await user.$relatedQuery('prayers').findById(id).patch(input);
     }

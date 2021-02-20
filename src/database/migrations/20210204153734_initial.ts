@@ -28,12 +28,14 @@ export async function up(knex: Knex): Promise<void> {
     })
     .createTable('prayers', (table) => {
       table.increments('id').primary();
-      table.string('name').unique().notNullable();
+      table.string('name').notNullable();
+      table.string('type').defaultTo('FARD');
     })
     .createTable('users_prayers', (table) => {
       table.integer('userId').references('id').inTable('users');
       table.integer('prayerId').references('id').inTable('prayers');
-      table.integer('rakats').defaultTo(0);
+      table.integer('value').defaultTo(0);
+      table.boolean('selected').defaultTo(false);
       table.timestamp('prayedAt').notNullable();
     })
     .createTable('quran_tracker', (table) => {
