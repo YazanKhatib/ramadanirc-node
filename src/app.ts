@@ -9,6 +9,7 @@ import {
   prayerRouter,
   tidbitRouter,
   duaRouter,
+  tokenRouter,
 } from 'routes';
 import { initializeDB } from 'database';
 import { quranRouter } from 'routes/quran';
@@ -30,20 +31,22 @@ init();
 app.use(express.json());
 app.use('/public', express.static('public'));
 
+app.use('/token', tokenRouter);
 app.use('/user', userRouter);
 app.use('/task', taskRouter);
 app.use('/prayer', prayerRouter);
 app.use('/quran', quranRouter);
 app.use('/tidbit', tidbitRouter);
 app.use('/dua', duaRouter);
+
 app.listen(process.env.PORT || 4000, async () => {
   logger.info(`🚀 Server ready at ${process.env.PORT}`);
 });
 
-//TODO:route verify token
-//TODO: selected instead of rakats
-//TODO: user prayers split prayers into FARAD , SUNNAH , TARAWEH , QEIAM , double values(selected,value)
-//TODO: change sunnah name to sunnah all .
+//TODO:1- route verify token (done)
+//TODO: selected instead of rakats (done)
+//TODO: user prayers split prayers into FARAD , SUNNAH , TARAWEH , QEIAM , double values(selected,value) (done)
+//TODO: change sunnah name to sunnah all . (done)
 //TODO: quran tracker limit with success message //https://alquran.cloud/api
 //TODO: add icon in daily checklist CRUD
 //TODO: daily checklist only not monthly
