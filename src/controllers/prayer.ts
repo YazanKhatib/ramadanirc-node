@@ -46,7 +46,8 @@ export const userPrayers = async (req: Request, res: Response) => {
       .$relatedQuery('prayers')
       .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
       .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`);
+      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
+      .orderBy('id');
     const fared = prayers.filter((value: Prayer) => value.type === 'FARD');
     const sunnah = prayers.filter((value: Prayer) => value.type === 'SUNNAH');
     const taraweeh = prayers.filter(
@@ -55,7 +56,12 @@ export const userPrayers = async (req: Request, res: Response) => {
     const qiyam = prayers.filter((value: Prayer) => value.type === 'QIYAM');
     return res.send({
       prayers: [
-        { fared: fared, sunnah: sunnah, taraweeh: taraweeh, qiyam: qiyam },
+        {
+          fared: fared,
+          sunnah: sunnah,
+          taraweeh: taraweeh[0],
+          qiyam: qiyam[0],
+        },
       ],
     });
   } catch (error) {
