@@ -22,11 +22,18 @@ export const fillPrayer = async (
     await allPrayers.forEach(async (prayer: Prayer) => {
       const tempPrayer = await user
         .$relatedQuery('prayers')
-        .findById(prayer.id);
+        .findById(prayer.id)
+        .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
+        .andWhereRaw(
+          `EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`,
+        )
+        .andWhereRaw(
+          `EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`,
+        );
       if (!tempPrayer) {
         const input: any = {
           id: prayer.id,
-          prayedAt: new Date(Date.now()).toISOString(),
+          prayedAt: date.toISOString(),
         };
         await user.$relatedQuery('prayers').relate(input);
       }
