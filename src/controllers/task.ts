@@ -153,7 +153,7 @@ export const userTasks = async (req: Request, res: Response) => {
 export const checkTask = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { id } = req.body;
+    const { id, value } = req.body;
     if (!id || id === '')
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
@@ -178,12 +178,12 @@ export const checkTask = async (req: Request, res: Response) => {
     if (!task) {
       input = {
         id: id,
-        value: true,
+        value: value,
         createdAt: new Date(Date.now()).toISOString(),
       };
       await user.$relatedQuery('tasks').relate(input);
     } else {
-      input = { value: true };
+      input = { value: value };
       await user.$relatedQuery('tasks').findById(id).patch(input);
     }
     return res.send({ success: 'task has been checked.' });
