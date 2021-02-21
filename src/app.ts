@@ -13,6 +13,7 @@ import {
 } from 'routes';
 import { initializeDB } from 'database';
 import { quranRouter } from 'routes/quran';
+import { deedRouter } from 'routes/deedOfTheDay';
 
 const app: Application = express();
 
@@ -38,6 +39,7 @@ app.use('/prayer', prayerRouter);
 app.use('/quran', quranRouter);
 app.use('/tidbit', tidbitRouter);
 app.use('/dua', duaRouter);
+app.use('/deedoftheday', deedRouter);
 
 app.listen(process.env.PORT || 4000, async () => {
   logger.info(`🚀 Server ready at ${process.env.PORT}`);

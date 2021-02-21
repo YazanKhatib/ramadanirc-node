@@ -56,6 +56,7 @@ export async function up(knex: Knex): Promise<void> {
     .createTable('tidbits', (table) => {
       table.increments('id').primary();
       table.text('text').defaultTo('');
+      table.timestamp('deedOfTheDayDate').defaultTo(null);
     })
     .createTable('favorites_tidbits', (table) => {
       table.integer('userId').references('id').inTable('users');

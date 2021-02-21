@@ -4,6 +4,7 @@ import { User } from 'models';
 export class Tidbit extends Model {
   readonly id!: number;
   text!: string;
+  deedOfTheDayDate?: string;
 
   static get tableName() {
     return 'tidbits';
