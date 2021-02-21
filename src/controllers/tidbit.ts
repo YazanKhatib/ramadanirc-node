@@ -67,7 +67,7 @@ export const getUserTidbits = async (req: Request, res: Response) => {
         const tempTidbit = await user
           .$relatedQuery('tidbits')
           .findById(tidbit.id);
-        if (tempTidbit) tidbit.isSelected = true;
+        if (tempTidbit) tidbit.isFavorite = true;
       }),
     );
     return res.send({ tidbits: tidbits });
