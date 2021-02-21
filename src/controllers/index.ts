@@ -5,3 +5,4 @@ export * from './quran';
 export * from './tidbit';
 export * from './dua';
 export * from './deedOfTheDay';
+export * from './progress';

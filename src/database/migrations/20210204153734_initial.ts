@@ -46,6 +46,7 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('juz').defaultTo(1);
       table.integer('surah').defaultTo(1);
       table.integer('ayah').defaultTo(1);
+      table.integer('readTime').defaultTo(0);
     })
     .createTable('daily_quran', (table) => {
       table.increments('id').primary();

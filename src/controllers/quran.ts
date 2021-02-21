@@ -152,3 +152,21 @@ export const getDailyQuran = async (req: Request, res: Response) => {
     res.status(400).send({ message: error.message });
   }
 };
+export const setTimeRead = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const { value } = req.body;
+    if (!value || value === '')
+      return res.status(400).send({ message: 'value is required' });
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    const input: any = { readTime: value };
+    const tracker = await user.$relatedQuery('quranTracker');
+    if (!tracker) await user.$relatedQuery('quranTracker').insert(input);
+    else await user.$relatedQuery('quranTracker').patch(input);
+    return res.send({ success: 'readTime has been updated' });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
