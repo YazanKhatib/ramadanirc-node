@@ -68,6 +68,7 @@ export const getUserTidbits = async (req: Request, res: Response) => {
           .$relatedQuery('tidbits')
           .findById(tidbit.id);
         if (tempTidbit) tidbit.isFavorite = true;
+        else tidbit.isFavorite = false;
       }),
     );
     return res.send({ tidbits: tidbits });

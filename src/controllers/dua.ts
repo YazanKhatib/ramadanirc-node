@@ -71,6 +71,7 @@ export const getUserDuas = async (req: Request, res: Response) => {
       duas.map(async (dua) => {
         const tempDua = await user.$relatedQuery('duas').findById(dua.id);
         if (tempDua) dua.isFavorite = true;
+        else dua.isFavorite = false;
       }),
     );
     return res.send({ duas: duas });
