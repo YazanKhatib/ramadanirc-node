@@ -4,6 +4,7 @@ import {
   deleteTidbit,
   getFavoriteTidbit,
   getTidbits,
+  getUserTidbits,
   removeFavoriteTidbit,
   updateTidbit,
 } from 'controllers';
@@ -12,15 +13,14 @@ import { verifyAdmin, verifyToken } from 'middleware';
 
 const router = Router();
 
-//COMMON ROUTE
-router.get('/', verifyToken, getTidbits);
-
 //ADMIN CRUD
+router.get('/', verifyToken, getTidbits);
 router.get('/delete/:id(\\d+)/', verifyToken, verifyAdmin, deleteTidbit);
 router.post('/add', verifyToken, verifyAdmin, addTidbit);
 router.post('/update', verifyToken, verifyAdmin, updateTidbit);
 
 //USER FUNC
+router.get('/mytidbits', verifyToken, getUserTidbits);
 router.get('/favorite', verifyToken, getFavoriteTidbit);
 router.get('/favorite/delete/:id(\\d+)', verifyToken, removeFavoriteTidbit);
 router.post('/favorite/add', verifyToken, addFavoriteTidbit);

@@ -3,10 +3,8 @@ import { Tidbit, User } from 'models';
 import Objection from 'objection';
 import { checkToken, logger } from 'utils';
 
-//COMMON
-//========
-
-//ADMIN GET , USER GET
+//ADMIN CRUD
+//===========
 export const getTidbits = async (req: Request, res: Response) => {
   try {
     const tidbits = await Tidbit.query();
@@ -16,9 +14,6 @@ export const getTidbits = async (req: Request, res: Response) => {
     return res.status(400).send({ message: error.message });
   }
 };
-
-//ADMIN CRUD
-//===========
 export const deleteTidbit = async (req: Request, res: Response) => {
   try {
     const tidbitId = req.params.id;
@@ -61,6 +56,26 @@ export const updateTidbit = async (req: Request, res: Response) => {
 //USER FUNC
 //==========
 
+export const getUserTidbits = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    const tidbits: any = await Tidbit.query();
+    await Promise.all(
+      tidbits.map(async (tidbit) => {
+        const tempTidbit = await user
+          .$relatedQuery('tidbits')
+          .findById(tidbit.id);
+        if (tempTidbit) tidbit.isSelected = true;
+      }),
+    );
+    return res.send({ tidbits: tidbits });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
 //GET FAVORAITE TIDBIT
 export const getFavoriteTidbit = async (req: Request, res: Response) => {
   try {

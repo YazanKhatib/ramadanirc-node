@@ -93,4 +93,42 @@ export async function seed(knex: Knex): Promise<void> {
         'five Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
   ]);
+
+  await knex('duas').insert([
+    {
+      textArabic:
+        'أشْهَدُ أن لا إلهَ إلا الله نَسْتَغْفِرُ الله نسأَلُكَ الجنَّةَ ونَعُوذُ بِكَ مِنْ النَّار',
+      textInbetween: '',
+      textEnglish:
+        'I testify that there is nothing worthy of worship other than Allah and we seek the forgiveness of Allah. We ask You for Paradise and take refuge in You from the Fire.',
+    },
+    {
+      textArabic:
+        'أشْهَدُ أن لا إلهَ إلا الله نَسْتَغْفِرُ الله نسأَلُكَ الجنَّةَ ونَعُوذُ بِكَ مِنْ النَّار',
+      textInbetween: '',
+      textEnglish:
+        'I testify that there is nothing worthy of worship other than Allah and we seek the forgiveness of Allah. We ask You for Paradise and take refuge in You from the Fire.',
+    },
+    {
+      textArabic:
+        'أشْهَدُ أن لا إلهَ إلا الله نَسْتَغْفِرُ الله نسأَلُكَ الجنَّةَ ونَعُوذُ بِكَ مِنْ النَّار',
+      textInbetween: '',
+      textEnglish:
+        'I testify that there is nothing worthy of worship other than Allah and we seek the forgiveness of Allah. We ask You for Paradise and take refuge in You from the Fire.',
+    },
+    {
+      textArabic:
+        'أشْهَدُ أن لا إلهَ إلا الله نَسْتَغْفِرُ الله نسأَلُكَ الجنَّةَ ونَعُوذُ بِكَ مِنْ النَّار',
+      textInbetween: '',
+      textEnglish:
+        'I testify that there is nothing worthy of worship other than Allah and we seek the forgiveness of Allah. We ask You for Paradise and take refuge in You from the Fire.',
+    },
+    {
+      textArabic:
+        'أشْهَدُ أن لا إلهَ إلا الله نَسْتَغْفِرُ الله نسأَلُكَ الجنَّةَ ونَعُوذُ بِكَ مِنْ النَّار',
+      textInbetween: '',
+      textEnglish:
+        'I testify that there is nothing worthy of worship other than Allah and we seek the forgiveness of Allah. We ask You for Paradise and take refuge in You from the Fire.',
+    },
+  ]);
 }

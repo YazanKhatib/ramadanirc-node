@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { Dua, User } from 'models';
 import { checkToken, logger } from 'utils';
 import Objection from 'objection';
-//COMMON
-//======
 
-//ADMIN GET , USER GET
+//ADMIN CRUD
+
 export const getDuas = async (req: Request, res: Response) => {
   try {
     const duas = await Dua.query();
@@ -16,7 +15,6 @@ export const getDuas = async (req: Request, res: Response) => {
   }
 };
 
-//ADMIN CRUD
 export const deleteDua = async (req: Request, res: Response) => {
   try {
     const duaId = req.params.id;
@@ -62,6 +60,25 @@ export const updateDua = async (req: Request, res: Response) => {
 
 //USER FUNC
 //=========
+//GET USER DUA WITH FAVORIATE
+export const getUserDuas = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    const duas: any = await Dua.query();
+    await Promise.all(
+      duas.map(async (dua) => {
+        const tempDua = await user.$relatedQuery('duas').findById(dua.id);
+        if (tempDua) dua.isFavorite = true;
+      }),
+    );
+    return res.send({ duas: duas });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
 
 //GET FAVORAITE DUA
 export const getFavoriteDua = async (req: Request, res: Response) => {
