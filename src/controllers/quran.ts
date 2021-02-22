@@ -83,9 +83,10 @@ export const getTracker = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const tracker: any = await user.$relatedQuery('quranTracker');
+    if (!tracker) await user.$relatedQuery('quranTracker').insert({});
+
     const maxLimit = await getMaxLimit(tracker.juz, tracker.surah);
     const minLimit = await getMinLimit(tracker.juz, tracker.surah);
-    if (!tracker) await user.$relatedQuery('quranTracker').insert({});
     res.send({
       tracker: await user.$relatedQuery('quranTracker'),
       minLimit: minLimit,
