@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User } from 'models';
+import { QuranTracker, User } from 'models';
 import { checkToken, logger } from 'utils';
 import fs from 'fs';
 import path from 'path';
@@ -82,9 +82,15 @@ export const getTracker = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const tracker = await user.$relatedQuery('quranTracker');
+    const tracker: any = await user.$relatedQuery('quranTracker');
+    const maxLimit = await getMaxLimit(tracker.juz, tracker.surah);
+    const minLimit = await getMinLimit(tracker.juz, tracker.surah);
     if (!tracker) await user.$relatedQuery('quranTracker').insert({});
-    res.send({ tracker: await user.$relatedQuery('quranTracker') });
+    res.send({
+      tracker: await user.$relatedQuery('quranTracker'),
+      minLimit: minLimit,
+      maxLimit: maxLimit,
+    });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -107,9 +113,6 @@ export const updateTracker = async (req: Request, res: Response) => {
       { juz: tracker.juz, surah: tracker.surah, ayah: tracker.ayah },
       { juz: juz, surah: surah, ayah: ayah },
     );
-    const maxLimit = await getMaxLimit(juz, surah);
-    const minLimit = await getMinLimit(juz, surah);
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const input: any = values;
     if (tracker) await user.$relatedQuery('quranTracker').patch(input);
@@ -117,8 +120,6 @@ export const updateTracker = async (req: Request, res: Response) => {
     return res.send({
       success: 'quran tracker has been updated',
       values: input,
-      minLimit: minLimit,
-      maxLimit: maxLimit,
     });
   } catch (error) {
     logger.error(error);
