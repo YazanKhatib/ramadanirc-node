@@ -62,14 +62,12 @@ export const userPrayers = async (req: Request, res: Response) => {
     );
     const qiyam = prayers.filter((value: Prayer) => value.type === 'QIYAM');
     return res.send({
-      prayers: [
-        {
-          fared: fared,
-          sunnah: sunnah,
-          taraweeh: taraweeh[0],
-          qiyam: qiyam[0],
-        },
-      ],
+      prayers: {
+        fared: fared,
+        sunnah: sunnah,
+        taraweeh: taraweeh[0],
+        qiyam: qiyam[0],
+      },
     });
   } catch (error) {
     logger.error(error);
