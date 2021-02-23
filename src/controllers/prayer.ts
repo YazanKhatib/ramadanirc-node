@@ -19,25 +19,27 @@ export const fillPrayer = async (
     .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`);
   const allPrayers = await Prayer.query();
   if (prayers.length !== allPrayers.length) {
-    await allPrayers.forEach(async (prayer: Prayer) => {
-      const tempPrayer = await user
-        .$relatedQuery('prayers')
-        .findById(prayer.id)
-        .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
-        .andWhereRaw(
-          `EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`,
-        )
-        .andWhereRaw(
-          `EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`,
-        );
-      if (!tempPrayer) {
-        const input: any = {
-          id: prayer.id,
-          prayedAt: date.toISOString(),
-        };
-        await user.$relatedQuery('prayers').relate(input);
-      }
-    });
+    await Promise.all(
+      allPrayers.map(async (prayer: Prayer) => {
+        const tempPrayer = await user
+          .$relatedQuery('prayers')
+          .findById(prayer.id)
+          .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
+          .andWhereRaw(
+            `EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`,
+          )
+          .andWhereRaw(
+            `EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`,
+          );
+        if (!tempPrayer) {
+          const input: any = {
+            id: prayer.id,
+            prayedAt: date.toISOString(),
+          };
+          await user.$relatedQuery('prayers').relate(input);
+        }
+      }),
+    );
   }
   next();
 };
@@ -62,12 +64,10 @@ export const userPrayers = async (req: Request, res: Response) => {
     );
     const qiyam = prayers.filter((value: Prayer) => value.type === 'QIYAM');
     return res.send({
-      prayers: {
-        fared: fared,
-        sunnah: sunnah,
-        taraweeh: taraweeh[0],
-        qiyam: qiyam[0],
-      },
+      fared: fared,
+      sunnah: sunnah,
+      taraweeh: taraweeh[0],
+      qiyam: qiyam[0],
     });
   } catch (error) {
     logger.error(error);
