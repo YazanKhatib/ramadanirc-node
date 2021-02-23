@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Tidbit, User } from 'models';
+import { User } from 'models';
 import { checkToken, logger } from 'utils';
 
 export const getMonthlyProgress = async (req: Request, res: Response) => {
@@ -32,10 +32,10 @@ export const getMonthlyProgress = async (req: Request, res: Response) => {
     const readTime: any = await user.$relatedQuery('quranTracker');
     logger.info(readTime);
     return res.send({
-      'SUNNAHS PRAYED': sunnah.count,
-      'GOOD DEEDS ACCOMPLISHED THIS MONTH': deeds.count,
-      'NAFLS PRAYED': nafls.sum ?? '0',
-      'TOTAL MINUTES OF QURAN READ': `${readTime.readTime}` ?? '0',
+      sunnahs: sunnah.count,
+      deedsAccomplished: deeds.count,
+      nafls: nafls.sum ?? '0',
+      quranTime: readTime ? `${readTime.readTime}` : '0',
     });
   } catch (error) {
     logger.error(error);
