@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import 'module-alias/register';
 import express, { Application } from 'express';
+import { initializeDB } from 'database';
 import dotenv from 'dotenv';
 import { logger } from 'utils';
 import {
@@ -11,10 +12,10 @@ import {
   duaRouter,
   tokenRouter,
   progressRouter,
+  quranRouter,
+  deedRouter,
+  reflectionRouter,
 } from 'routes';
-import { initializeDB } from 'database';
-import { quranRouter } from 'routes/quran';
-import { deedRouter } from 'routes/deedOfTheDay';
 
 const app: Application = express();
 
@@ -42,7 +43,8 @@ app.use('/tidbit', tidbitRouter);
 app.use('/dua', duaRouter);
 app.use('/deedoftheday', deedRouter);
 app.use('/progress', progressRouter);
+app.use('/reflection', reflectionRouter);
+
 app.listen(process.env.PORT || 4000, async () => {
   logger.info(`🚀 Server ready at ${process.env.PORT}`);
 });
-//TODO:add monthly progress

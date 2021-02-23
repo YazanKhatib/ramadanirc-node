@@ -1,6 +1,7 @@
 import { Model } from 'objection';
 import { Task, Prayer, QuranTracker, DailyQuran, Tidbit } from 'models';
 import { Dua } from './dua';
+import { Reflection } from './reflection';
 
 export class User extends Model {
   readonly id!: number;
@@ -106,6 +107,14 @@ export class User extends Model {
             to: 'favorites_duas.duaId',
           },
           to: 'duas.id',
+        },
+      },
+      reflections: {
+        relation: Model.HasManyRelation,
+        modelClass: Reflection,
+        join: {
+          from: 'users.id',
+          to: 'reflections.userId',
         },
       },
     };

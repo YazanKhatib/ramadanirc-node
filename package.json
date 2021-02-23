@@ -44,6 +44,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.17",
     "module-alias": "^2.2.2",
+    "moment": "^2.29.1",
     "nodemailer": "^6.4.17",
     "objection": "^2.2.14",
     "pg": "^8.5.1",
