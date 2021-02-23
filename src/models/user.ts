@@ -14,6 +14,8 @@ export class User extends Model {
   gender?: string;
   refreshToken!: string;
   expirationDate!: string;
+  registrationToken!: string;
+  notify?: boolean;
 
   static get tableName() {
     return 'users';

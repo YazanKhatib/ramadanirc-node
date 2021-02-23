@@ -19,17 +19,17 @@ export const verifyToken = async (
       return next();
     }
     if (!refreshToken || refreshToken === '')
-      return res.status(400).send({ message: 'refresh Token needed' });
+      return res.status(403).send({ message: 'refresh Token needed' });
 
     const user = await User.query().findOne('refreshToken', refreshToken);
 
     if (!user)
-      return res.status(400).send({ message: 'user must login first.' });
+      return res.status(403).send({ message: 'user must login first.' });
 
     const expired = new Date(user.expirationDate).getTime() < Date.now();
 
     if (expired)
-      return res.status(400).send({ message: 'user must login first.' });
+      return res.status(403).send({ message: 'user must login first.' });
 
     const newAccessToken = await generateAccessToken({ id: user.id });
     res.send({
@@ -51,7 +51,7 @@ export const verifyAdmin = async (
     const data = await checkToken(accessToken);
     const isAdmin = (await User.query().findById(data.id)).admin;
     if (isAdmin) return next();
-    else return res.status(402).send({ message: 'not authorized.' });
+    else return res.status(403).send({ message: 'not authorized.' });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

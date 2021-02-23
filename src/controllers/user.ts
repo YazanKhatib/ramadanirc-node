@@ -1,4 +1,4 @@
-import objection from 'objection';
+import objection, { NotNullViolationError } from 'objection';
 import nodemailer from 'nodemailer';
 import { Request, Response } from 'express';
 import { User } from 'models';
@@ -38,6 +38,7 @@ export const register = async (req: Request, res: Response) => {
       gender,
       location,
       adminSecret,
+      registrationToken,
     } = req.body;
     let passwordHash = undefined;
     if (password != '') passwordHash = await hashedPassword(password);
@@ -58,6 +59,7 @@ export const register = async (req: Request, res: Response) => {
       expirationDate: new Date(
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
+      registrationToken,
     });
     const user = await returnUser('email', email);
 
@@ -86,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
   //   5- renew refresh token
   //   6- send success of failure
   try {
-    const { id, email } = req.body;
+    const { id, email, registrationToken } = req.body;
     let { password } = req.body;
     if (!email) return res.status(400).send({ message: 'email required' });
     let user = await User.query().findOne('email', email);
@@ -115,6 +117,7 @@ export const login = async (req: Request, res: Response) => {
     await User.query()
       .findById(user.id)
       .patch({
+        registrationToken,
         refreshToken: refreshToken,
         expirationDate: new Date(
           Date.now() + refreshTokenLifeSpan * 1000,
@@ -130,9 +133,9 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error(error);
-    res.status(400).send({
-      message: error.message,
-    });
+    if (error instanceof NotNullViolationError)
+      return res.status(400).send({ message: `${error.column} is required` });
+    return res.status(400).send({ message: error.message });
   }
 };
 export const forgetPassword = async (req: Request, res: Response) => {
@@ -244,8 +247,16 @@ export const postProfile = async (req: Request, res: Response) => {
     return res.status(400).send({ message: error.name });
   }
 };
-
-//TODO: validators
-// id must be an id of facebook user
-// typical validator for input fields
-//token must be jwt token
+export const setNotify = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const { value } = req.body;
+    if (!value) return res.status(400).send({ message: 'value is required' });
+    const data = await checkToken(accessToken);
+    await User.query().findById(data.id).patch({ notify: value });
+    return res.send({ message: 'notification status has been updated' });
+  } catch (error) {
+    logger.error(error);
+    return res.send(400).send({ message: error.message });
+  }
+};
