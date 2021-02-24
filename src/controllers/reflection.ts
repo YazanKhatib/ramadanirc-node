@@ -20,9 +20,9 @@ export const getReflections = async (req: Request, res: Response) => {
 export const addReflection = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { text } = req.body;
-    if (!text || text === '')
-      return res.status(400).send({ message: 'text is required.' });
+    const { title, text } = req.body;
+    if (!text || text === '' || !title || title === '')
+      return res.status(400).send({ message: 'title and text are required.' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
@@ -30,6 +30,7 @@ export const addReflection = async (req: Request, res: Response) => {
 
     const input: any = {
       preview,
+      title,
       text,
       date,
     };

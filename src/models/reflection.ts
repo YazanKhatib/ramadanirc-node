@@ -5,6 +5,7 @@ export class Reflection extends Model {
   readonly id!: number;
   date!: Date;
   preview?: string;
+  title?: string;
   text?: string;
 
   static get tableName() {

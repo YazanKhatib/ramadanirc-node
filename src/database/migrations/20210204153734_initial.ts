@@ -88,6 +88,7 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('userId').references('id').inTable('users');
       table.string('date').notNullable();
       table.string('preview', 255).defaultTo('');
+      table.string('title').defaultTo('');
       table.text('text').defaultTo('');
     });
 }
