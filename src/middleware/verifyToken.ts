@@ -29,7 +29,7 @@ export const verifyToken = async (
     const expired = new Date(user.expirationDate).getTime() < Date.now();
 
     if (expired)
-      return res.status(403).send({ message: 'user must login first.' });
+      return res.status(401).send({ message: 'user must login first.' });
 
     const newAccessToken = await generateAccessToken({ id: user.id });
     res.send({
