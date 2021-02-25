@@ -132,10 +132,10 @@ export const userTasks = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { value } = req.body;
     const data = await checkToken(accessToken);
-    const user = User.query().findById(data.id);
+    const user = await User.query().findById(data.id);
     const date = new Date(value);
 
-    const tasks = await (await user)
+    const tasks = await user
       .$relatedQuery('tasks')
       .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
       .andWhereRaw(
