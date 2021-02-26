@@ -251,10 +251,11 @@ export const setNotify = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
     const { value } = req.body;
-    if (!value) return res.status(400).send({ message: 'value is required' });
+    if (value === null)
+      return res.status(400).send({ message: 'value is required' });
     const data = await checkToken(accessToken);
     await User.query().findById(data.id).patch({ notify: value });
-    return res.send({ message: 'notification status has been updated' });
+    return res.send({ success: 'notification status has been updated' });
   } catch (error) {
     logger.error(error);
     return res.send(400).send({ message: error.message });
