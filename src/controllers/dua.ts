@@ -108,7 +108,7 @@ export const addFavoriteDua = async (req: Request, res: Response) => {
     const user = await User.query().findById(data.id);
     const Dua = await user.$relatedQuery('duas').findById(id);
     if (!Dua) await user.$relatedQuery('duas').relate(id);
-    return res.send({ success: 'tidbit has been added to favorites' });
+    return res.send({ success: 'dua has been added to favorites' });
   } catch (error) {
     logger.error(error);
     if (error instanceof Objection.ForeignKeyViolationError)
