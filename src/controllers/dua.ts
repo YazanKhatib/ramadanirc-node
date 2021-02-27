@@ -88,8 +88,6 @@ export const getFavoriteDua = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const favoriateDuas = await user.$relatedQuery('duas');
-    if (favoriateDuas.length === 0)
-      return res.send({ message: 'no favorite Dua yet.' });
     return res.send({ favorites: favoriateDuas });
   } catch (error) {
     logger.error(error);

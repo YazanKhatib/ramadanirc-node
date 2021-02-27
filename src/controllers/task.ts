@@ -105,25 +105,27 @@ export const fillTasks = async (
     .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
   const allTasks = await Task.query();
   if (allTasks.length !== tasks.length) {
-    await allTasks.forEach(async (task: Task) => {
-      const tempTask = await user
-        .$relatedQuery('tasks')
-        .findById(task.id)
-        .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
-        .andWhereRaw(
-          `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
-        )
-        .andWhereRaw(
-          `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
-        );
-      if (!tempTask) {
-        const input: any = {
-          id: task.id,
-          createdAt: date.toISOString(),
-        };
-        await user.$relatedQuery('tasks').relate(input);
-      }
-    });
+    await Promise.all(
+      allTasks.map(async (task: Task) => {
+        const tempTask = await user
+          .$relatedQuery('tasks')
+          .findById(task.id)
+          .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
+          .andWhereRaw(
+            `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
+          )
+          .andWhereRaw(
+            `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
+          );
+        if (!tempTask) {
+          const input: any = {
+            id: task.id,
+            createdAt: date.toISOString(),
+          };
+          await user.$relatedQuery('tasks').relate(input);
+        }
+      }),
+    );
   }
   next();
 };

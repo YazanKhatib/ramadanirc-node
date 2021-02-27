@@ -84,8 +84,6 @@ export const getFavoriteTidbit = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const favoriteTidbits = await user.$relatedQuery('tidbits');
-    if (favoriteTidbits.length === 0)
-      return res.send({ message: 'no favorite Tidbits yet.' });
     return res.send({ favorites: favoriteTidbits });
   } catch (error) {
     logger.error(error);
