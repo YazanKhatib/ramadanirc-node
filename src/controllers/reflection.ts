@@ -41,3 +41,36 @@ export const addReflection = async (req: Request, res: Response) => {
     return res.status(400).send({ message: error.message });
   }
 };
+export const updateReflection = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const { id, title, text, date } = req.body;
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
+    const input: any = {
+      preview,
+      title,
+      text,
+      date,
+    };
+    await user.$relatedQuery('reflections').findById(id).patch(input);
+    return res.send({ success: 'reflection has been updated' });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
+export const deleteReflection = async (req: Request, res: Response) => {
+  try {
+    const accessToken = req.header('accessToken');
+    const id = req.params.id;
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
+    await user.$relatedQuery('reflections').deleteById(id);
+    return res.send({ success: 'reflection has been deleted' });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
