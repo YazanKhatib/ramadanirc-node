@@ -16,7 +16,16 @@ const refreshTokenLifeSpan = 86400; //24 hours in seconds
 
 const returnUser = async (matchName, matchData) => {
   const user = await User.query()
-    .select('id', 'username', 'email', 'location', 'age', 'gender')
+    .select(
+      'id',
+      'username',
+      'email',
+      'location',
+      'age',
+      'gender',
+      'admin',
+      'notify',
+    )
     .where(matchName, matchData)
     .first();
   return user;
@@ -232,9 +241,11 @@ export const postProfile = async (req: Request, res: Response) => {
       location: location,
     });
     if (password && password != '')
-      await User.query().patch({
-        password: await hashedPassword(password),
-      });
+      await User.query()
+        .findById(data.id)
+        .patch({
+          password: await hashedPassword(password),
+        });
     return res.send({ user: await returnUser('id', data.id) });
   } catch (error) {
     logger.error(error);
@@ -259,5 +270,91 @@ export const setNotify = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     return res.send(400).send({ message: error.message });
+  }
+};
+
+//ADMIN
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    let users;
+    if (id) {
+      users = await User.query()
+        .select(
+          'id',
+          'username',
+          'email',
+          'admin',
+          'location',
+          'age',
+          'gender',
+          'refreshToken',
+          'expirationDate',
+          'registrationToken',
+          'notify',
+        )
+        .where('id', id)
+        .first();
+    } else {
+      users = await User.query().select(
+        'id',
+        'username',
+        'email',
+        'admin',
+        'location',
+        'age',
+        'gender',
+        'refreshToken',
+        'expirationDate',
+        'registrationToken',
+        'notify',
+      );
+    }
+    return res.send({ users: users });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    const {
+      id,
+      username,
+      email,
+      age,
+      gender,
+      location,
+      password,
+      admin,
+    } = req.body;
+    if (!id || id === '')
+      return res.status(400).send({ message: ' id is required' });
+    await User.query().findById(id).patch({
+      username,
+      email,
+      age,
+      gender,
+      admin,
+      location,
+    });
+    if (password && password != '')
+      await User.query()
+        .findById(id)
+        .patch({
+          password: await hashedPassword(password),
+        });
+    return res.send({ success: 'User has been updated ' });
+  } catch (error) {
+    logger.error(error);
+    if (error instanceof objection.UniqueViolationError)
+      return res
+        .status(400)
+        .send({ message: 'username, email must be unique' });
+    if (error instanceof objection.NotNullViolationError)
+      return res.status(400).send({ message: `${error.column} is required` });
+    return res.status(400).send({ message: error.message });
   }
 };
