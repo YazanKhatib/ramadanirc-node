@@ -10,6 +10,7 @@ import { verifyToken } from 'middleware';
 const router = Router();
 
 router.get('/', verifyToken, getReflections);
+router.get('/:id(\\d+)', verifyToken, getReflections);
 router.get('/delete/:id(\\d+)', verifyToken, deleteReflection);
 router.post('/add', verifyToken, addReflection);
 router.post('/update', verifyToken, updateReflection);

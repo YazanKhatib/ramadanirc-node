@@ -5,11 +5,14 @@ import moment from 'moment';
 
 export const getReflections = async (req: Request, res: Response) => {
   try {
+    const id = req.params.id;
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const reflections = await user.$relatedQuery('reflections');
-    if (reflections.length === 0)
+    let reflections;
+    if (!id) reflections = await user.$relatedQuery('reflections');
+    else reflections = await user.$relatedQuery('reflections').findById(id);
+    if (reflections && reflections.length === 0)
       return res.send({ success: 'no reflections yet.' });
     return res.send({ reflections: reflections });
   } catch (error) {
