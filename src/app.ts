@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import 'module-alias/register';
+import cors from 'cors';
 import express, { Application } from 'express';
 import { initializeDB } from 'database';
 import dotenv from 'dotenv';
@@ -33,6 +34,7 @@ const init = async () => {
 init();
 initializeMesseging();
 
+app.use(cors());
 app.use(express.json());
 app.use('/public', express.static('public'));
 
