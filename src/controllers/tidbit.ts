@@ -19,8 +19,10 @@ export const deleteTidbit = async (req: Request, res: Response) => {
     const tidbitId = req.params.id;
     if (!tidbitId || tidbitId === '')
       return res.status(400).send({ message: 'id must be provided' });
+    const tidbit = await Tidbit.query().findById(tidbitId);
     await Tidbit.query().deleteById(tidbitId);
-    return res.send({ success: 'Tidbit has been deleted' });
+
+    return res.send({ success: 'Tidbit has been deleted', tidbit: tidbit });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -32,8 +34,8 @@ export const addTidbit = async (req: Request, res: Response) => {
     const { text } = req.body;
     if (!text || text === '')
       return res.status(400).send({ message: 'Tidbit text must be provided' });
-    await Tidbit.query().insert({ text });
-    return res.send({ success: 'Tidbit has been added' });
+    const tidbit = await Tidbit.query().insertAndFetch({ text });
+    return res.send({ success: 'Tidbit has been added', tidbit: tidbit });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.mesage });
@@ -45,8 +47,8 @@ export const updateTidbit = async (req: Request, res: Response) => {
     const { id, text } = req.body;
     if (!id || id === '' || !text || text === '')
       return res.status(400).send({ message: 'id and text must be provided' });
-    await Tidbit.query().findById(id).patch({ text });
-    return res.send({ success: 'Tidbit has been updated' });
+    const tidbit = await Tidbit.query().patchAndFetchById(id, { text });
+    return res.send({ success: 'Tidbit has been updated', tidbit: tidbit });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -100,9 +102,13 @@ export const addFavoriteTidbit = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'tidbit Id must be provided' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const tidbit = await user.$relatedQuery('tidbits').findById(id);
+    let tidbit = await user.$relatedQuery('tidbits').findById(id);
     if (!tidbit) await user.$relatedQuery('tidbits').relate(id);
-    return res.send({ success: 'tidbit has been added to favorites' });
+    tidbit = await user.$relatedQuery('tidbits').findById(id);
+    return res.send({
+      success: 'tidbit has been added to favorites',
+      tidbit: tidbit,
+    });
   } catch (error) {
     logger.error(error);
     if (error instanceof Objection.ForeignKeyViolationError)
@@ -118,8 +124,12 @@ export const removeFavoriteTidbit = async (req: Request, res: Response) => {
     const tidbitId = req.params.id;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
+    const tidbit = await user.$relatedQuery('tidbits').where('id', tidbitId);
     await user.$relatedQuery('tidbits').unrelate().where('id', tidbitId);
-    return res.send({ success: 'Tidbit removed from favorites' });
+    return res.send({
+      success: 'Tidbit removed from favorites',
+      tidbit: tidbit,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

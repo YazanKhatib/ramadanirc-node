@@ -15,7 +15,8 @@ export const getTask = async (req: Request, res: Response) => {
   } else
     tasks = await Task.query()
       .where('endDate', '>', new Date(Date.now()).toISOString())
-      .orWhere('endDate', null);
+      .orWhere('endDate', null)
+      .orderBy('id');
 
   if (tasks.length != 0) return res.send({ tasks: tasks });
   else return res.send({ message: 'no tasks exists' });
@@ -24,7 +25,7 @@ export const getTask = async (req: Request, res: Response) => {
 export const addTask = async (req: Request, res: Response) => {
   try {
     const { name, fixed, selectedIcon, notSelectedIcon } = req.body;
-    const task = await Task.query().findOne('name', name);
+    let task = await Task.query().findOne('name', name);
     if (task) {
       await Task.query().findById(task.id).patch({
         endDate: null,
@@ -37,7 +38,8 @@ export const addTask = async (req: Request, res: Response) => {
         notSelectedIcon: notSelectedIcon,
       });
     }
-    return res.status(201).send({ success: 'task had been added' });
+    task = await Task.query().findOne('name', name);
+    return res.status(201).send({ success: 'task had been added', task: task });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.ValidationError)
@@ -53,14 +55,14 @@ export const addTask = async (req: Request, res: Response) => {
 export const deleteTask = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const task = Task.query().findById(+id);
+    const task = await Task.query().findById(+id);
     if (!task) return res.status(400).send({ message: "task don't exist" });
     await Task.query()
       .findById(id)
       .patch({
         endDate: new Date(Date.now()).toISOString(),
       });
-    res.send({ success: 'task has been removed.' });
+    res.send({ success: 'task has been removed.', task: task });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -76,7 +78,8 @@ export const updateTask = async (req: Request, res: Response) => {
       selectedIcon,
       notSelectedIcon,
     });
-    return res.send({ success: 'task has been modified.' });
+    const task = await Task.query().findById(id);
+    return res.send({ success: 'task has been modified.', task: task });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
@@ -160,7 +163,7 @@ export const checkTask = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const task = await user
+    let task = await user
       .$relatedQuery('tasks')
       .findById(id)
       .whereRaw(
@@ -188,7 +191,23 @@ export const checkTask = async (req: Request, res: Response) => {
       input = { value: value };
       await user.$relatedQuery('tasks').findById(id).patch(input);
     }
-    return res.send({ success: 'task has been checked.' });
+    task = await user
+      .$relatedQuery('tasks')
+      .findById(id)
+      .whereRaw(
+        `EXTRACT(DAY FROM "createdAt") = ${new Date(Date.now()).getUTCDate()}`,
+      )
+      .andWhereRaw(
+        `EXTRACT(MONTH FROM "createdAt") = ${
+          new Date(Date.now()).getUTCMonth() + 1
+        }`,
+      )
+      .andWhereRaw(
+        `EXTRACT(YEAR FROM "createdAt") = ${new Date(
+          Date.now(),
+        ).getUTCFullYear()}`,
+      );
+    return res.send({ success: 'task has been checked.', task: task });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

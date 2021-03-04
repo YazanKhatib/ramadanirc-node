@@ -37,8 +37,13 @@ export const addReflection = async (req: Request, res: Response) => {
       text,
       date,
     };
-    await user.$relatedQuery('reflections').insert(input);
-    return res.send({ success: 'reflection has been added' });
+    const reflection = await user
+      .$relatedQuery('reflections')
+      .insertAndFetch(input);
+    return res.send({
+      success: 'reflection has been added',
+      reflection: reflection,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -57,8 +62,13 @@ export const updateReflection = async (req: Request, res: Response) => {
       text,
       date,
     };
-    await user.$relatedQuery('reflections').findById(id).patch(input);
-    return res.send({ success: 'reflection has been updated' });
+    const reflection = await user
+      .$relatedQuery('reflections')
+      .patchAndFetchById(id, input);
+    return res.send({
+      success: 'reflection has been updated',
+      reflection: reflection,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -70,8 +80,12 @@ export const deleteReflection = async (req: Request, res: Response) => {
     const id = req.params.id;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
+    const reflection = await user.$relatedQuery('reflections').findById(id);
     await user.$relatedQuery('reflections').deleteById(id);
-    return res.send({ success: 'reflection has been deleted' });
+    return res.send({
+      success: 'reflection has been deleted',
+      reflection: reflection,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

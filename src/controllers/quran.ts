@@ -170,10 +170,11 @@ export const setTimeRead = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const input: any = { readTime: value };
-    const tracker = await user.$relatedQuery('quranTracker');
+    let tracker = await user.$relatedQuery('quranTracker');
     if (!tracker) await user.$relatedQuery('quranTracker').insert(input);
     else await user.$relatedQuery('quranTracker').patch(input);
-    return res.send({ success: 'readTime has been updated' });
+    tracker = await user.$relatedQuery('quranTracker');
+    return res.send({ success: 'readTime has been updated', tracker: tracker });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

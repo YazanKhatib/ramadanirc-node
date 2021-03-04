@@ -346,7 +346,8 @@ export const updateUser = async (req: Request, res: Response) => {
         .patch({
           password: await hashedPassword(password),
         });
-    return res.send({ success: 'User has been updated ' });
+    const user = await returnUser('id', id);
+    return res.send({ success: 'User has been updated ', user: user });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)

@@ -82,7 +82,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const prayer = await user
+    let prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
       .whereRaw(
@@ -115,7 +115,23 @@ export const checkPrayer = async (req: Request, res: Response) => {
       };
       await user.$relatedQuery('prayers').findById(id).patch(input);
     }
-    res.send({ success: 'prayer had been updated' });
+    prayer = await user
+      .$relatedQuery('prayers')
+      .findById(id)
+      .whereRaw(
+        `EXTRACT(DAY FROM "prayedAt") = ${new Date(Date.now()).getUTCDate()}`,
+      )
+      .andWhereRaw(
+        `EXTRACT(MONTH FROM "prayedAt") = ${
+          new Date(Date.now()).getUTCMonth() + 1
+        }`,
+      )
+      .andWhereRaw(
+        `EXTRACT(YEAR FROM "prayedAt") = ${new Date(
+          Date.now(),
+        ).getUTCFullYear()}`,
+      );
+    res.send({ success: 'prayer had been updated', prayer: prayer });
   } catch (error) {
     logger.error(error);
     if (error instanceof ForeignKeyViolationError)

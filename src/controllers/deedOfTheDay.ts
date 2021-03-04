@@ -26,11 +26,12 @@ export const setDeedOfTheDay = async (req: Request, res: Response) => {
     const { id, value } = req.body;
     if (!id || !value || id === '' || value === '')
       return res.status(400).send({ message: 'id and date are required' });
-    await Tidbit.query().findById(id).patch({
+    const deedoftheday = await Tidbit.query().patchAndFetchById(id, {
       deedOfTheDayDate: value,
     });
     return res.send({
       message: `tidbit has been set as deed for the day ${value}`,
+      deedoftheday: deedoftheday,
     });
   } catch (error) {
     logger.error(error);
