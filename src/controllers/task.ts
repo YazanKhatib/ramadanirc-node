@@ -101,6 +101,7 @@ export const fillTasks = async (
   const user = await User.query().findById(data.id);
   const { value } = req.body;
   const date = new Date(value);
+  logger.info(date);
   const tasks = await user
     .$relatedQuery('tasks')
     .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
@@ -123,7 +124,7 @@ export const fillTasks = async (
         if (!tempTask) {
           const input: any = {
             id: task.id,
-            createdAt: date.toISOString(),
+            createdAt: date.toUTCString(),
           };
           await user.$relatedQuery('tasks').relate(input);
         }

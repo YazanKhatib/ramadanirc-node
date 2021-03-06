@@ -124,7 +124,10 @@ export const removeFavoriteTidbit = async (req: Request, res: Response) => {
     const tidbitId = req.params.id;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const tidbit = await user.$relatedQuery('tidbits').where('id', tidbitId);
+    const tidbit = await user
+      .$relatedQuery('tidbits')
+      .where('id', tidbitId)
+      .first();
     await user.$relatedQuery('tidbits').unrelate().where('id', tidbitId);
     return res.send({
       success: 'Tidbit removed from favorites',

@@ -131,7 +131,7 @@ export const removeFavoriteDua = async (req: Request, res: Response) => {
     const duaId = req.params.id;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const dua = await user.$relatedQuery('duas').where('id', duaId);
+    const dua = await user.$relatedQuery('duas').where('id', duaId).first();
     await user.$relatedQuery('duas').unrelate().where('id', duaId);
     return res.send({ success: 'Dua is removed from favorites', dua: dua });
   } catch (error) {
