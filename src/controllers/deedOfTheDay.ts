@@ -14,7 +14,7 @@ export const getDeedOfTheDay = async (req: Request, res: Response) => {
         `EXTRACT(YEAR FROM "deedOfTheDayDate") = ${value.getUTCFullYear()}`,
       )
       .first();
-    if (!tidbit) return res.send({ text: 'no deed for the day' });
+    if (!tidbit) return res.send({ deedOfTheDay: 'no deed for the day' });
     return res.send({ deedOfTheDay: tidbit });
   } catch (error) {
     logger.error(error);
