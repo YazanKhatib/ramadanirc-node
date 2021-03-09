@@ -8,3 +8,5 @@ export * from './deedOfTheDay';
 export * from './progress';
 export * from './reflection';
 export * from './message';
+export * from './indicators';
+export * from './title';

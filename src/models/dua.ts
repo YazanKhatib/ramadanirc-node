@@ -6,6 +6,7 @@ export class Dua extends Model {
   textArabic?: string;
   textInbetween?: string;
   textEnglish?: string;
+  textFrench?: string;
 
   static get tableName() {
     return 'duas';

@@ -31,10 +31,13 @@ export const deleteTidbit = async (req: Request, res: Response) => {
 
 export const addTidbit = async (req: Request, res: Response) => {
   try {
-    const { text } = req.body;
-    if (!text || text === '')
+    const { textEnglish, textFrench } = req.body;
+    if (!textEnglish || textEnglish === '' || !textFrench || textFrench === '')
       return res.status(400).send({ message: 'Tidbit text must be provided' });
-    const tidbit = await Tidbit.query().insertAndFetch({ text });
+    const tidbit = await Tidbit.query().insertAndFetch({
+      textEnglish,
+      textFrench,
+    });
     return res.send({ success: 'Tidbit has been added', tidbit: tidbit });
   } catch (error) {
     logger.error(error);
@@ -44,10 +47,13 @@ export const addTidbit = async (req: Request, res: Response) => {
 
 export const updateTidbit = async (req: Request, res: Response) => {
   try {
-    const { id, text } = req.body;
-    if (!id || id === '' || !text || text === '')
-      return res.status(400).send({ message: 'id and text must be provided' });
-    const tidbit = await Tidbit.query().patchAndFetchById(id, { text });
+    const { id, textEnglish, textFrench } = req.body;
+    if (!id || id === '')
+      return res.status(400).send({ message: 'id must be provided' });
+    const tidbit = await Tidbit.query().patchAndFetchById(id, {
+      textEnglish,
+      textFrench,
+    });
     return res.send({ success: 'Tidbit has been updated', tidbit: tidbit });
   } catch (error) {
     logger.error(error);

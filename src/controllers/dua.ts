@@ -31,8 +31,13 @@ export const deleteDua = async (req: Request, res: Response) => {
 
 export const addDua = async (req: Request, res: Response) => {
   try {
-    const { textArabic, textInbetween, textEnglish } = req.body;
-    if (textArabic === '' || textInbetween === '' || textEnglish === '')
+    const { textArabic, textInbetween, textEnglish, textFrench } = req.body;
+    if (
+      textArabic === '' ||
+      textInbetween === '' ||
+      textEnglish === '' ||
+      textFrench === ''
+    )
       return res
         .status(400)
         .send({ message: "all Dua' text must be provided" });
@@ -40,6 +45,7 @@ export const addDua = async (req: Request, res: Response) => {
       textArabic,
       textInbetween,
       textEnglish,
+      textFrench,
     });
     return res.send({ success: 'Dua has been added', dua: dua });
   } catch (error) {
@@ -50,13 +56,14 @@ export const addDua = async (req: Request, res: Response) => {
 
 export const updateDua = async (req: Request, res: Response) => {
   try {
-    const { id, textArabic, textInbetween, textEnglish } = req.body;
+    const { id, textArabic, textInbetween, textEnglish, textFrench } = req.body;
     if (!id || id === '')
       return res.status(400).send({ message: 'id must be provided' });
     const dua = await Dua.query().patchAndFetchById(id, {
       textArabic,
       textInbetween,
       textEnglish,
+      textFrench,
     });
     return res.send({ success: 'Dua has been updated', dua: dua });
   } catch (error) {

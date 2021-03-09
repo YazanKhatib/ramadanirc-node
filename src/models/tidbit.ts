@@ -3,7 +3,8 @@ import { User } from 'models';
 
 export class Tidbit extends Model {
   readonly id!: number;
-  text!: string;
+  textEnglish?: string;
+  textFrench?: string;
   deedOfTheDayDate?: string;
 
   static get tableName() {

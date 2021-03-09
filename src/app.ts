@@ -17,6 +17,8 @@ import {
   deedRouter,
   reflectionRouter,
   messageRouter,
+  indicatorsRouter,
+  titleRouter,
 } from 'routes';
 
 const app: Application = express();
@@ -49,6 +51,8 @@ app.use('/deedoftheday', deedRouter);
 app.use('/progress', progressRouter);
 app.use('/reflection', reflectionRouter);
 app.use('/message', messageRouter);
+app.use('/indicators', indicatorsRouter);
+app.use('/title', titleRouter);
 
 app.listen(process.env.PORT || 4000, async () => {
   logger.info(`🚀 Server ready at ${process.env.PORT}`);

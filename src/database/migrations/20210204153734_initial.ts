@@ -58,7 +58,8 @@ export async function up(knex: Knex): Promise<void> {
     })
     .createTable('tidbits', (table) => {
       table.increments('id').primary();
-      table.text('text').defaultTo('');
+      table.text('textEnglish').defaultTo('');
+      table.text('textFrench').defaultTo('');
       table.timestamp('deedOfTheDayDate').defaultTo(null);
     })
     .createTable('favorites_tidbits', (table) => {
@@ -74,6 +75,7 @@ export async function up(knex: Knex): Promise<void> {
       table.text('textArabic').defaultTo('');
       table.text('textInbetween').defaultTo('');
       table.text('textEnglish').defaultTo('');
+      table.text('textFrench').defaultTo('');
     })
     .createTable('favorites_duas', (table) => {
       table.integer('userId').references('id').inTable('users');
@@ -88,8 +90,13 @@ export async function up(knex: Knex): Promise<void> {
       table.integer('userId').references('id').inTable('users');
       table.string('date').notNullable();
       table.string('preview', 255).defaultTo('');
-      table.string('title').defaultTo('');
       table.text('text').defaultTo('');
+    })
+    .createTable('titles', (table) => {
+      table.increments('id').primary();
+      table.text('textEnglish').defaultTo('');
+      table.text('textFrench').defaultTo('');
+      table.timestamp('date').defaultTo(null);
     });
 }
 
@@ -106,5 +113,6 @@ export async function down(knex: Knex): Promise<void> {
     .dropTableIfExists('tidbits')
     .dropTableIfExists('prayers')
     .dropTableIfExists('tasks')
-    .dropTableIfExists('users');
+    .dropTableIfExists('users')
+    .dropTableIfExists('titles');
 }

@@ -73,23 +73,23 @@ export async function seed(knex: Knex): Promise<void> {
 
   await knex('tidbits').insert([
     {
-      text:
+      textEnglish:
         'one Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
     {
-      text:
+      textEnglish:
         'two Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
     {
-      text:
+      textEnglish:
         'three Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
     {
-      text:
+      textEnglish:
         'four Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
     {
-      text:
+      textEnglish:
         'five Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.',
     },
   ]);
