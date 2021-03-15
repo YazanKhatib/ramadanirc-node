@@ -5,7 +5,7 @@ import { checkToken, logger } from 'utils';
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
-    const date = new Date(value);
+    const date = new Date(decodeURIComponent(value));
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);

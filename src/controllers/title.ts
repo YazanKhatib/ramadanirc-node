@@ -5,7 +5,7 @@ import { logger } from 'utils';
 export const getTitle = async (req: Request, res: Response) => {
   try {
     const value: any = req.query.date;
-    const date = new Date(value);
+    const date = new Date(decodeURIComponent(value));
     const title = await Title.query()
       .whereRaw(`EXTRACT(DAY FROM "date") = ${date.getUTCDate()}`)
       .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${date.getUTCMonth() + 1}`)
