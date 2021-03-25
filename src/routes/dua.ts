@@ -9,7 +9,7 @@ import {
   getUserDuas,
   updateDua,
 } from 'controllers';
-import { verifyToken, verifyAdmin } from 'middleware';
+import { verifyToken, verifyAdmin, updateActivity } from 'middleware';
 const router = Router();
 
 //ADMIN CRUD
@@ -19,9 +19,14 @@ router.post('/add', verifyToken, verifyAdmin, addDua);
 router.post('/update', verifyToken, verifyAdmin, updateDua);
 
 //USER FUNC
-router.get('/myduas', verifyToken, getUserDuas);
-router.get('/favorite', verifyToken, getFavoriteDua);
-router.get('/favorite/delete/:id(\\d+)', verifyToken, removeFavoriteDua);
-router.post('/favorite/add', verifyToken, addFavoriteDua);
+router.get('/myduas', verifyToken, updateActivity, getUserDuas);
+router.get('/favorite', verifyToken, updateActivity, getFavoriteDua);
+router.get(
+  '/favorite/delete/:id(\\d+)',
+  verifyToken,
+  updateActivity,
+  removeFavoriteDua,
+);
+router.post('/favorite/add', verifyToken, updateActivity, addFavoriteDua);
 
 export { router as duaRouter };

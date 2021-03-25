@@ -17,8 +17,10 @@ export const sendMessage = async (
   body: string,
 ) => {
   const payload: unknown = {
-    title: title,
-    body: body,
+    notification: {
+      title: title,
+      body: body,
+    },
   };
   await admin.messaging().sendToDevice(registrationToken, payload);
 };

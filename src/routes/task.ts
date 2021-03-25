@@ -1,5 +1,5 @@
 import Router from 'express';
-import { verifyAdmin, verifyToken } from 'middleware';
+import { verifyAdmin, verifyToken, updateActivity } from 'middleware';
 import {
   getTask,
   addTask,
@@ -20,8 +20,8 @@ router.post('/add', verifyToken, verifyAdmin, addTask);
 router.post('/update', verifyToken, verifyAdmin, updateTask);
 
 //user routes
-router.post('/myTasks', verifyToken, fillTasks, userTasks);
-router.post('/check', verifyToken, checkTask);
+router.post('/myTasks', verifyToken, updateActivity, fillTasks, userTasks);
+router.post('/check', verifyToken, updateActivity, checkTask);
 
 //common routes
 router.get('/', verifyToken, getTask);

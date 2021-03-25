@@ -5,8 +5,6 @@ import fs from 'fs';
 import path from 'path';
 
 const getValues = async (oldValues, newValues) => {
-  logger.info(oldValues);
-  logger.info(newValues);
   let juz, surah, ayah;
   if (oldValues.juz != newValues.juz) {
     const limit = await getMinLimit(newValues.juz, newValues.surah);

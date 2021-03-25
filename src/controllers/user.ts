@@ -21,6 +21,7 @@ const returnUser = async (matchName, matchData) => {
       'username',
       'email',
       'location',
+      'language',
       'age',
       'gender',
       'admin',
@@ -234,11 +235,11 @@ export const postProfile = async (req: Request, res: Response) => {
 
     if (!user) return res.status(400).send({ message: "user doesn't exist" });
     await User.query().patchAndFetchById(data.id, {
-      username: username,
-      email: email,
-      age: age,
-      gender: gender,
-      location: location,
+      username,
+      email,
+      age,
+      gender,
+      location,
     });
     if (password && password != '')
       await User.query()
@@ -272,7 +273,18 @@ export const setNotify = async (req: Request, res: Response) => {
     return res.send(400).send({ message: error.message });
   }
 };
-
+export const setLanguage = async (req: Request, res: Response) => {
+  try {
+    const { language } = req.body;
+    const accessToken = req.header('accessToken');
+    const data = await checkToken(accessToken);
+    const user = await User.query().patch({ language }).where('id', data.id);
+    return res.send({ success: 'language has been updated', user: user });
+  } catch (error) {
+    logger.error(error);
+    return res.status(400).send({ message: error.message });
+  }
+};
 //ADMIN
 
 export const getUser = async (req: Request, res: Response) => {
@@ -289,6 +301,7 @@ export const getUser = async (req: Request, res: Response) => {
           'location',
           'age',
           'gender',
+          'language',
           'refreshToken',
           'expirationDate',
           'registrationToken',
@@ -305,6 +318,7 @@ export const getUser = async (req: Request, res: Response) => {
         'location',
         'age',
         'gender',
+        'language',
         'refreshToken',
         'expirationDate',
         'registrationToken',
@@ -326,6 +340,7 @@ export const updateUser = async (req: Request, res: Response) => {
       email,
       age,
       gender,
+      language,
       location,
       password,
       admin,
@@ -337,6 +352,7 @@ export const updateUser = async (req: Request, res: Response) => {
       email,
       age,
       gender,
+      language,
       admin,
       location,
     });

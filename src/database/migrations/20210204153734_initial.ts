@@ -8,6 +8,7 @@ export async function up(knex: Knex): Promise<void> {
       table.string('email', 255).unique().notNullable();
       table.string('password', 255).notNullable();
       table.boolean('admin').defaultTo(false);
+      table.string('language').defaultTo('English');
       table.string('location', 255).nullable();
       table.integer('age', 3).nullable();
       table.string('gender', 255).nullable();
@@ -97,14 +98,38 @@ export async function up(knex: Knex): Promise<void> {
       table.text('textEnglish').defaultTo('');
       table.text('textFrench').defaultTo('');
       table.timestamp('date').defaultTo(null);
+    })
+    .createTable('activities', (table) => {
+      table.increments('id').primary();
+      table.integer('userId').references('id').inTable('users');
+      table.timestamp('lastActivity');
+      table.timestamp('quranActivity');
+      table.integer('trackerScore').defaultTo(0);
+    })
+    .createTable('notified', (table) => {
+      table.increments('id').primary();
+      table.integer('userId').references('id').inTable('users');
+      table.boolean('isNotified').defaultTo(false);
+      table.timestamp('date');
+    })
+    .createTable('notifications', (table) => {
+      table.increments('id').primary();
+      table.string('titleEnglish').defaultTo('');
+      table.string('titleFrench').defaultTo('');
+      table.string('bodyEnglish').defaultTo('');
+      table.string('bodyFrench').defaultTo('');
+      table.timestamp('date');
     });
 }
 
 export async function down(knex: Knex): Promise<void> {
   return knex.schema
+    .dropTableIfExists('notifications')
+    .dropTableIfExists('notified')
     .dropTableIfExists('users_tasks')
     .dropTableIfExists('users_prayers')
     .dropTableIfExists('daily_quran')
+    .dropTableIfExists('activities')
     .dropTableIfExists('favorites_tidbits')
     .dropTableIfExists('quran_tracker')
     .dropTableIfExists('favorites_duas')

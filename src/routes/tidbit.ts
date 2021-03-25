@@ -9,7 +9,7 @@ import {
   updateTidbit,
 } from 'controllers';
 import { Router } from 'express';
-import { verifyAdmin, verifyToken } from 'middleware';
+import { verifyAdmin, verifyToken, updateActivity } from 'middleware';
 
 const router = Router();
 
@@ -20,8 +20,13 @@ router.post('/add', verifyToken, verifyAdmin, addTidbit);
 router.post('/update', verifyToken, verifyAdmin, updateTidbit);
 
 //USER FUNC
-router.get('/mytidbits', verifyToken, getUserTidbits);
-router.get('/favorite', verifyToken, getFavoriteTidbit);
-router.get('/favorite/delete/:id(\\d+)', verifyToken, removeFavoriteTidbit);
-router.post('/favorite/add', verifyToken, addFavoriteTidbit);
+router.get('/mytidbits', verifyToken, updateActivity, getUserTidbits);
+router.get('/favorite', verifyToken, updateActivity, getFavoriteTidbit);
+router.get(
+  '/favorite/delete/:id(\\d+)',
+  verifyToken,
+  updateActivity,
+  removeFavoriteTidbit,
+);
+router.post('/favorite/add', verifyToken, updateActivity, addFavoriteTidbit);
 export { router as tidbitRouter };

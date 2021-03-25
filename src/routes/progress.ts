@@ -1,9 +1,9 @@
 import { getMonthlyProgress } from 'controllers';
 import { Router } from 'express';
-import { verifyToken } from 'middleware';
+import { verifyToken, updateActivity } from 'middleware';
 
 const router = Router();
 
-router.get('/', verifyToken, getMonthlyProgress);
+router.get('/', verifyToken, updateActivity, getMonthlyProgress);
 
 export { router as progressRouter };

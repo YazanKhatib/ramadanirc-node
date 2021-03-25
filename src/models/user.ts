@@ -1,7 +1,15 @@
 import { Model } from 'objection';
-import { Task, Prayer, QuranTracker, DailyQuran, Tidbit } from 'models';
-import { Dua } from './dua';
-import { Reflection } from './reflection';
+import {
+  Dua,
+  Reflection,
+  Activity,
+  Task,
+  Prayer,
+  QuranTracker,
+  DailyQuran,
+  Tidbit,
+  Notified,
+} from 'models';
 
 export class User extends Model {
   readonly id!: number;
@@ -10,6 +18,7 @@ export class User extends Model {
   password!: string;
   admin?: boolean;
   location?: string;
+  language?: string;
   age?: number;
   gender?: string;
   refreshToken!: string;
@@ -117,6 +126,30 @@ export class User extends Model {
         join: {
           from: 'users.id',
           to: 'reflections.userId',
+        },
+      },
+      activity: {
+        relation: Model.HasOneRelation,
+        modelClass: Activity,
+        join: {
+          from: 'users.id',
+          to: 'activities.userId',
+        },
+        notified: {
+          relation: Model.HasManyRelation,
+          modelClass: Notified,
+          join: {
+            from: 'users.id',
+            to: 'notified.userId',
+          },
+        },
+      },
+      notified: {
+        relation: Model.HasManyRelation,
+        modelClass: Notified,
+        join: {
+          from: 'users.id',
+          to: 'notified.userId',
         },
       },
     };

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { checkToken, logger } from 'utils';
+import { checkToken, logger, sendMessage } from 'utils';
 import { Prayer, User } from 'models';
 import { ForeignKeyViolationError } from 'objection';
+import moment from 'moment';
 export const fillPrayer = async (
   req: Request,
   res: Response,
@@ -131,6 +132,31 @@ export const checkPrayer = async (req: Request, res: Response) => {
           Date.now(),
         ).getUTCFullYear()}`,
       );
+    const today = moment();
+    if (user.notify === true) {
+      const PrayerNum: any = await user
+        .$relatedQuery('prayers')
+        .andWhereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
+        .andWhere('prayerId', '<=', '5')
+        .count()
+        .first();
+      const notified = await user
+        .$relatedQuery('notified')
+        .whereRaw(`"date"::Date = '${today.format('YYYY MM DD')}'`);
+      if (PrayerNum.count === '5' && notified.length === 0) {
+        //TODO: message title and body
+        await sendMessage(
+          user.registrationToken,
+          '5 prayers streak',
+          '5 prayers body',
+        );
+        const input: any = {
+          isNotified: true,
+          date: new Date(Date.now()).toISOString(),
+        };
+        await user.$relatedQuery('notified').insert(input);
+      }
+    }
     res.send({ success: 'prayer had been updated', prayer: prayer });
   } catch (error) {
     logger.error(error);
