@@ -113,15 +113,15 @@ export const checkPrayer = async (req: Request, res: Response) => {
       await user.$relatedQuery('prayers').relate(input);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const input: any = {
-        value: value ?? +(selected === true),
-        selected: selected ?? value > 0,
-      };
-      await user
-        .$relatedQuery('prayers')
-        .where('id', id)
-        .andWhereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
-        .patch(input);
+
+      const val = value ?? +(selected === true);
+      const sel = selected ?? value > 0;
+      const knex = User.knex();
+      const temp = await knex.raw(
+        `update users_prayers SET selected = ${sel},value=${val} where "prayedAt"::Date ='${today.format(
+          'YYYY MM DD',
+        )}' and "prayerId" = ${id} and "userId" = ${user.id}`,
+      );
     }
     prayer = await user
       .$relatedQuery('prayers')
