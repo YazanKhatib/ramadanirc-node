@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Task, User } from 'models';
 import { checkToken, logger } from 'utils';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
+
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
@@ -25,7 +26,7 @@ export const getIndicators = async (req: Request, res: Response) => {
     const allTasks = (await Task.query()).length;
 
     const resData = new Map();
-    let tempDate;
+    let tempDate: Moment;
     for (let i = 0; i < 356; i++) {
       tempDate = moment();
       tempDate.subtract(i, 'days');
@@ -47,7 +48,7 @@ export const getIndicators = async (req: Request, res: Response) => {
       };
     }
     prayers.forEach((prayer: any) => {
-      tempDate = new Date(prayer.prayedAt);
+      tempDate = moment(prayer.prayedAt);
       if (prayer.id === 1)
         resData[tempDate.format('YYYY-MM-DD')].prayers.fajr = true;
       if (prayer.id === 2)
