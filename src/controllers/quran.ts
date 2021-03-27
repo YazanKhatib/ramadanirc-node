@@ -3,6 +3,7 @@ import { User } from 'models';
 import { checkToken, logger } from 'utils';
 import fs from 'fs';
 import path from 'path';
+import moment from 'moment';
 
 const getValues = async (oldValues, newValues) => {
   let juz, surah, ayah;
@@ -53,12 +54,10 @@ const checkDailyQuran = async (req: Request) => {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = new Date(Date.now());
+    const date = moment();
     const dailyQuran = await user
       .$relatedQuery('dailyQuran')
-      .whereRaw(`EXTRACT(DAY FROM "readAt") = ${date.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "readAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"readAt"::Date = '${date.format('YYYY MM DD')}'`)
       .first();
     let input: any;
     if (!dailyQuran) {
@@ -140,12 +139,10 @@ export const getDailyQuran = async (req: Request, res: Response) => {
       res.status(400).send({ message: 'date required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = new Date(value);
+    const date = moment(value);
     let dailyQuran = await user
       .$relatedQuery('dailyQuran')
-      .whereRaw(`EXTRACT(DAY FROM "readAt") = ${date.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "readAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"readAt"::Date = '${date.format('YYYY MM DD')}'`)
       .first();
     if (!dailyQuran) {
       const input: any = {

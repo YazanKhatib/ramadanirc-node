@@ -2,7 +2,7 @@ import { Task, User } from 'models';
 import { Response, Request, NextFunction } from 'express';
 import { checkToken, logger } from 'utils';
 import objection from 'objection';
-
+import moment from 'moment';
 //ADMIN
 //=======
 export const getTask = async (req: Request, res: Response) => {
@@ -100,13 +100,10 @@ export const fillTasks = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const date = new Date(value);
-  logger.info(date);
+  const date = moment(value);
   const tasks = await user
     .$relatedQuery('tasks')
-    .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
-    .andWhereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
-    .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`);
+    .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`);
   const allTasks = await Task.query();
   if (allTasks.length !== tasks.length) {
     await Promise.all(
@@ -114,17 +111,11 @@ export const fillTasks = async (
         const tempTask = await user
           .$relatedQuery('tasks')
           .findById(task.id)
-          .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
-          .andWhereRaw(
-            `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
-          )
-          .andWhereRaw(
-            `EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`,
-          );
+          .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`);
         if (!tempTask) {
           const input: any = {
             id: task.id,
-            createdAt: date.toUTCString(),
+            createdAt: date.toISOString(),
           };
           await user.$relatedQuery('tasks').relate(input);
         }
@@ -139,15 +130,11 @@ export const userTasks = async (req: Request, res: Response) => {
     const { value } = req.body;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = new Date(value);
+    const date = moment(value);
 
     const tasks = await user
       .$relatedQuery('tasks')
-      .whereRaw(`EXTRACT(DAY FROM "createdAt") = ${date.getUTCDate()}`)
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
-      )
-      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`)
       .orderBy('id');
     res.send({ tasks: tasks });
   } catch (error) {
@@ -164,22 +151,11 @@ export const checkTask = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
+    const today = moment();
     let task = await user
       .$relatedQuery('tasks')
       .findById(id)
-      .whereRaw(
-        `EXTRACT(DAY FROM "createdAt") = ${new Date(Date.now()).getUTCDate()}`,
-      )
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "createdAt") = ${
-          new Date(Date.now()).getUTCMonth() + 1
-        }`,
-      )
-      .andWhereRaw(
-        `EXTRACT(YEAR FROM "createdAt") = ${new Date(
-          Date.now(),
-        ).getUTCFullYear()}`,
-      );
+      .whereRaw(`"createdAt"::Date = '${today.format('YYYY MM DD')}'`);
     let input: any;
     if (!task) {
       input = {
@@ -195,19 +171,7 @@ export const checkTask = async (req: Request, res: Response) => {
     task = await user
       .$relatedQuery('tasks')
       .findById(id)
-      .whereRaw(
-        `EXTRACT(DAY FROM "createdAt") = ${new Date(Date.now()).getUTCDate()}`,
-      )
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "createdAt") = ${
-          new Date(Date.now()).getUTCMonth() + 1
-        }`,
-      )
-      .andWhereRaw(
-        `EXTRACT(YEAR FROM "createdAt") = ${new Date(
-          Date.now(),
-        ).getUTCFullYear()}`,
-      );
+      .whereRaw(`"createdAt"::Date = '${today.format('YYYY MM DD')}'`);
     return res.send({ success: 'task has been checked.', task: task });
   } catch (error) {
     logger.error(error);

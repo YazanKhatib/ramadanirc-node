@@ -4,13 +4,7 @@ import { logger, sendMessage } from 'utils';
 
 export const sendAll = async (req: Request, res: Response) => {
   try {
-    const {
-      titleEnglish,
-      titleFrench,
-      bodyEnglish,
-      bodyFrench,
-      body,
-    } = req.body;
+    const { titleEnglish, titleFrench, bodyEnglish, bodyFrench } = req.body;
     if (
       titleEnglish === '' ||
       titleFrench === '' ||
@@ -109,7 +103,7 @@ export const removeNotification = async (req: Request, res: Response) => {
       notification: notification,
     });
   } catch (error) {
-    logger.info(error);
+    logger.error(error);
     return res.status(400).send({ message: error.message });
   }
 };

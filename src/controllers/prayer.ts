@@ -12,12 +12,10 @@ export const fillPrayer = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const date = new Date(value);
+  const today = moment(value);
   const prayers = await user
     .$relatedQuery('prayers')
-    .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
-    .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
-    .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`);
+    .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
   const allPrayers = await Prayer.query();
   if (prayers.length !== allPrayers.length) {
     await Promise.all(
@@ -25,17 +23,11 @@ export const fillPrayer = async (
         const tempPrayer = await user
           .$relatedQuery('prayers')
           .findById(prayer.id)
-          .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
-          .andWhereRaw(
-            `EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`,
-          )
-          .andWhereRaw(
-            `EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`,
-          );
+          .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
         if (!tempPrayer) {
           const input: any = {
             id: prayer.id,
-            prayedAt: date.toISOString(),
+            prayedAt: today.toISOString(),
           };
           await user.$relatedQuery('prayers').relate(input);
         }
@@ -51,12 +43,10 @@ export const userPrayers = async (req: Request, res: Response) => {
 
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = new Date(value);
+    const date = moment(value);
     const prayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`EXTRACT(DAY FROM "prayedAt") = ${date.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"prayedAt"::Date = '${date.format('YYYY MM DD')}'`)
       .orderBy('id');
     const fared = prayers.filter((value: Prayer) => value.type === 'FARD');
     const sunnah = prayers.filter((value: Prayer) => value.type === 'SUNNAH');
@@ -83,29 +73,18 @@ export const checkPrayer = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
+    const today = moment();
     let prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
-      .whereRaw(
-        `EXTRACT(DAY FROM "prayedAt") = ${new Date(Date.now()).getUTCDate()}`,
-      )
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "prayedAt") = ${
-          new Date(Date.now()).getUTCMonth() + 1
-        }`,
-      )
-      .andWhereRaw(
-        `EXTRACT(YEAR FROM "prayedAt") = ${new Date(
-          Date.now(),
-        ).getUTCFullYear()}`,
-      );
+      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
     if (!prayer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
         id: id,
         value: value ?? +(selected === true),
         selected: selected ?? value > 0,
-        prayedAt: new Date(Date.now()).toISOString(),
+        prayedAt: today.toISOString(),
       };
       await user.$relatedQuery('prayers').relate(input);
     } else {
@@ -119,20 +98,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
     prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
-      .whereRaw(
-        `EXTRACT(DAY FROM "prayedAt") = ${new Date(Date.now()).getUTCDate()}`,
-      )
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "prayedAt") = ${
-          new Date(Date.now()).getUTCMonth() + 1
-        }`,
-      )
-      .andWhereRaw(
-        `EXTRACT(YEAR FROM "prayedAt") = ${new Date(
-          Date.now(),
-        ).getUTCFullYear()}`,
-      );
-    const today = moment();
+      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
     if (user.notify === true) {
       const PrayerNum: any = await user
         .$relatedQuery('prayers')

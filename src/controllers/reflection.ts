@@ -15,11 +15,9 @@ export const getReflections = async (req: Request, res: Response) => {
     else reflections = await user.$relatedQuery('reflections').findById(id);
     if (reflections && reflections.length === 0)
       return res.send({ success: 'no reflections yet.' });
-    const date = new Date(Date.now());
+    const date = moment();
     const title = await Title.query()
-      .whereRaw(`EXTRACT(DAY FROM "date") = ${date.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "date") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
       .first();
     return res.send({ reflections: reflections, title: title });
   } catch (error) {
@@ -46,11 +44,9 @@ export const addReflection = async (req: Request, res: Response) => {
     const reflection = await user
       .$relatedQuery('reflections')
       .insertAndFetch(input);
-    const tempDate = new Date(Date.now());
+    const tempDate = moment();
     const reflectionTitle = await Title.query()
-      .whereRaw(`EXTRACT(DAY FROM "date") = ${tempDate.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${tempDate.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "date") = ${tempDate.getUTCFullYear()}`)
+      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
       success: 'reflection has been added',
@@ -77,11 +73,9 @@ export const updateReflection = async (req: Request, res: Response) => {
     const reflection = await user
       .$relatedQuery('reflections')
       .patchAndFetchById(id, input);
-    const tempDate = new Date(Date.now());
+    const tempDate = moment();
     const reflectionTitle = await Title.query()
-      .whereRaw(`EXTRACT(DAY FROM "date") = ${tempDate.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${tempDate.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "date") = ${tempDate.getUTCFullYear()}`)
+      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
       success: 'reflection has been updated',
@@ -101,11 +95,9 @@ export const deleteReflection = async (req: Request, res: Response) => {
     const user = await User.query().findById(data.id);
     const reflection = await user.$relatedQuery('reflections').findById(id);
     await user.$relatedQuery('reflections').deleteById(id);
-    const tempDate = new Date(Date.now());
+    const tempDate = moment();
     const reflectionTitle = await Title.query()
-      .whereRaw(`EXTRACT(DAY FROM "date") = ${tempDate.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${tempDate.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "date") = ${tempDate.getUTCFullYear()}`)
+      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
       success: 'reflection has been deleted',

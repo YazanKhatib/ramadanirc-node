@@ -30,7 +30,6 @@ export const getMonthlyProgress = async (req: Request, res: Response) => {
       .count()
       .first();
     const readTime: any = await user.$relatedQuery('quranTracker');
-    logger.info(readTime);
     return res.send({
       sunnahs: sunnah.count,
       deedsAccomplished: deeds.count,

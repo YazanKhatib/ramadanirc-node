@@ -1,18 +1,12 @@
 import { Request, Response } from 'express';
 import { Tidbit } from 'models';
 import { logger } from 'utils';
-
+import moment from 'moment';
 export const getDeedOfTheDay = async (req: Request, res: Response) => {
   try {
-    const value = new Date(Date.now());
+    const value = moment();
     const tidbit = await Tidbit.query()
-      .whereRaw(`EXTRACT(DAY FROM "deedOfTheDayDate") = ${value.getUTCDate()}`)
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "deedOfTheDayDate") = ${value.getUTCMonth() + 1}`,
-      )
-      .andWhereRaw(
-        `EXTRACT(YEAR FROM "deedOfTheDayDate") = ${value.getUTCFullYear()}`,
-      )
+      .whereRaw(`"deedOfTheDayDate"::Date = '${value.format('YYYY MM DD')}'`)
       .first();
     if (!tidbit) return res.send({ deedOfTheDay: 'no deed for the day' });
     return res.send({ deedOfTheDay: tidbit });

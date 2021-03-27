@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
 import { Title } from 'models/title';
 import { logger } from 'utils';
-
+import moment from 'moment';
 export const getTitle = async (req: Request, res: Response) => {
   try {
     const value: any = req.query.date;
-    const date = new Date(decodeURIComponent(value));
+    const date = moment(decodeURIComponent(value));
     const title = await Title.query()
-      .whereRaw(`EXTRACT(DAY FROM "date") = ${date.getUTCDate()}`)
-      .andWhereRaw(`EXTRACT(MONTH FROM "date") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "date") = ${date.getUTCFullYear()}`)
+      .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
       .first();
     return res.send({ title: title });
   } catch (error) {
