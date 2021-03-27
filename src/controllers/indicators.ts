@@ -60,7 +60,7 @@ export const getIndicators = async (req: Request, res: Response) => {
         resData[tempDate.format('YYYY-MM-DD')].prayers.isha = true;
     });
     qurans.forEach((quran: any) => {
-      tempDate = new Date(quran.readAt);
+      tempDate = moment(quran.readAt);
       resData[tempDate.format('YYYY-MM-DD')].quran = true;
     });
     return res.send({ data: resData });
