@@ -13,6 +13,7 @@ export const fillPrayer = async (
   const user = await User.query().findById(data.id);
   const { value } = req.body;
   const today = moment(value);
+
   const prayers = await user
     .$relatedQuery('prayers')
     .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
@@ -43,10 +44,33 @@ export const userPrayers = async (req: Request, res: Response) => {
 
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment(value);
+    const today = moment(value);
+
+    //fill prayers
+    const userPrayers = await user
+      .$relatedQuery('prayers')
+      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+    const allPrayers = await Prayer.query();
+    if (userPrayers.length !== allPrayers.length) {
+      await Promise.all(
+        allPrayers.map(async (prayer) => {
+          const tempPrayer = await user
+            .$relatedQuery('prayers')
+            .findById(prayer.id)
+            .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+          if (!tempPrayer) {
+            const input: any = {
+              id: prayer.id,
+              prayedAt: today.toISOString(),
+            };
+            await user.$relatedQuery('prayers').relate(input);
+          }
+        }),
+      );
+    }
     const prayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`"prayedAt"::Date = '${date.format('YYYY MM DD')}'`)
+      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
       .orderBy('id');
     const fared = prayers.filter((value: Prayer) => value.type === 'FARD');
     const sunnah = prayers.filter((value: Prayer) => value.type === 'SUNNAH');
@@ -93,12 +117,17 @@ export const checkPrayer = async (req: Request, res: Response) => {
         value: value ?? +(selected === true),
         selected: selected ?? value > 0,
       };
-      await user.$relatedQuery('prayers').findById(id).patch(input);
+      await user
+        .$relatedQuery('prayers')
+        .where('id', id)
+        .andWhereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
+        .patch(input);
     }
     prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
       .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+    //5 streak notification
     if (user.notify === true) {
       const PrayerNum: any = await user
         .$relatedQuery('prayers')
