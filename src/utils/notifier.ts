@@ -111,6 +111,9 @@ const scheduledNotification = async () => {
   const notifications = await Notification.query().whereRaw(
     `"date"::Date = '${today.format('YYYY MM DD')}'`,
   );
+  await Notification.query()
+    .whereRaw(`"date"::Date = '${today.format('YYYY MM DD')}'`)
+    .patch({ status: 'Sent' });
   let title, body;
   await Promise.all(
     notifications.map(async (notification) => {

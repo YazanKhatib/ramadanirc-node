@@ -104,12 +104,7 @@ export const updateTracker = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const tracker: any = await user.$relatedQuery('quranTracker');
-    if (
-      juz > tracker.juz ||
-      (juz === tracker.juz && surah > tracker.surah) ||
-      (juz === tracker.juz && surah === tracker.surah && ayah > tracker.ayah)
-    )
-      await checkDailyQuran(req);
+
     const values = await getValues(
       { juz: tracker.juz, surah: tracker.surah, ayah: tracker.ayah },
       { juz: juz, surah: surah, ayah: ayah },
@@ -162,6 +157,7 @@ export const setTimeRead = async (req: Request, res: Response) => {
     const { value } = req.body;
     if (!value || value === '')
       return res.status(400).send({ message: 'value is required' });
+    await checkDailyQuran(req);
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const input: any = { readTime: value };

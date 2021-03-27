@@ -7,6 +7,7 @@ export class Notification extends Model {
   bodyEnglish?: string;
   bodyFrench?: string;
   date!: string;
+  status?: string;
 
   static get tableName() {
     return 'notifications';

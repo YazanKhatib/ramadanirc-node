@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { User } from 'models';
+import { Task, User } from 'models';
 import { checkToken, logger } from 'utils';
-
+import moment from 'moment';
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
@@ -22,13 +22,19 @@ export const getIndicators = async (req: Request, res: Response) => {
       .$relatedQuery('tasks')
       .whereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
       .andWhere('value', true);
+    const allTasks = (await Task.query()).length;
 
     const resData = new Map();
     let tempDate;
     for (let i = 0; i < 356; i++) {
-      tempDate = new Date();
-      tempDate.setDate(date.getDate() - i);
-      resData[tempDate.toDateString()] = {
+      tempDate = moment();
+      tempDate.subtract(i, 'days');
+      const partial = (
+        await user
+          .$relatedQuery('tasks')
+          .whereRaw(` "createdAt"::Date = '${tempDate.format('YYYY MM DD')}'`)
+      ).length;
+      resData[tempDate.format('YYYY-MM-DD')] = {
         prayers: {
           fajr: false,
           duhur: false,
@@ -36,27 +42,26 @@ export const getIndicators = async (req: Request, res: Response) => {
           maghrib: false,
           isha: false,
         },
-        task: false,
+        task: (partial * 50) / allTasks,
         quran: false,
       };
     }
     prayers.forEach((prayer: any) => {
       tempDate = new Date(prayer.prayedAt);
-      if (prayer.id === 1) resData[tempDate.toDateString()].prayers.fajr = true;
+      if (prayer.id === 1)
+        resData[tempDate.format('YYYY-MM-DD')].prayers.fajr = true;
       if (prayer.id === 2)
-        resData[tempDate.toDateString()].prayers.duhur = true;
-      if (prayer.id === 3) resData[tempDate.toDateString()].prayers.asr = true;
+        resData[tempDate.format('YYYY-MM-DD')].prayers.duhur = true;
+      if (prayer.id === 3)
+        resData[tempDate.format('YYYY-MM-DD')].prayers.asr = true;
       if (prayer.id === 4)
-        resData[tempDate.toDateString()].prayers.maghrib = true;
-      if (prayer.id === 5) resData[tempDate.toDateString()].prayers.isha = true;
+        resData[tempDate.format('YYYY-MM-DD')].prayers.maghrib = true;
+      if (prayer.id === 5)
+        resData[tempDate.format('YYYY-MM-DD')].prayers.isha = true;
     });
     qurans.forEach((quran: any) => {
       tempDate = new Date(quran.readAt);
-      resData[tempDate.toDateString()].quran = true;
-    });
-    task.forEach((task: any) => {
-      tempDate = new Date(task.createdAt);
-      resData[tempDate.toDateString()].task = true;
+      resData[tempDate.format('YYYY-MM-DD')].quran = true;
     });
     return res.send({ data: resData });
   } catch (error) {

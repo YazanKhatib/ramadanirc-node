@@ -119,6 +119,7 @@ export async function up(knex: Knex): Promise<void> {
       table.string('bodyEnglish').defaultTo('');
       table.string('bodyFrench').defaultTo('');
       table.timestamp('date');
+      table.string('status').defaultTo('Pending');
     });
 }
 

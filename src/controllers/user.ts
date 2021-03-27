@@ -278,7 +278,8 @@ export const setLanguage = async (req: Request, res: Response) => {
     const { language } = req.body;
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
-    const user = await User.query().patch({ language }).where('id', data.id);
+    await User.query().patch({ language }).where('id', data.id);
+    const user = await returnUser('id', data.id);
     return res.send({ success: 'language has been updated', user: user });
   } catch (error) {
     logger.error(error);
