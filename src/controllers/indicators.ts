@@ -34,6 +34,7 @@ export const getIndicators = async (req: Request, res: Response) => {
         await user
           .$relatedQuery('tasks')
           .whereRaw(` "createdAt"::Date = '${tempDate.format('YYYY MM DD')}'`)
+          .andWhere('value', true)
       ).length;
       resData[tempDate.format('YYYY-MM-DD')] = {
         prayers: {
