@@ -18,11 +18,8 @@ export const getIndicators = async (req: Request, res: Response) => {
     const qurans = await user
       .$relatedQuery('dailyQuran')
       .whereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`)
-      .andWhere('value', true);
-    const task = await user
-      .$relatedQuery('tasks')
-      .whereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
-      .andWhere('value', true);
+      .andWhere('readTime', '>', 0);
+
     const allTasks = (await Task.query()).length;
 
     const resData = new Map();
