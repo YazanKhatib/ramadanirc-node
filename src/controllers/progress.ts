@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DailyQuran, User } from 'models';
+import { User } from 'models';
 import { checkToken, logger } from 'utils';
 
 export const getMonthlyProgress = async (req: Request, res: Response) => {
@@ -29,7 +29,8 @@ export const getMonthlyProgress = async (req: Request, res: Response) => {
       .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
       .count()
       .first();
-    const readTime: any = await DailyQuran.query()
+    const readTime: any = await user
+      .$relatedQuery('dailyQuran')
       .sum('readTime')
       .whereRaw(`EXTRACT(MONTH FROM "readAt") = ${date.getUTCMonth() + 1}`)
       .andWhereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`);
