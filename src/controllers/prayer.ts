@@ -92,12 +92,12 @@ export const userPrayers = async (req: Request, res: Response) => {
 export const checkPrayer = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { id, selected, value } = req.body;
+    const { id, selected, value, date } = req.body;
     if (!id || id === '')
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment();
+    const today = moment(date);
     let prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
@@ -117,7 +117,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
       const val = value ?? +(selected === true);
       const sel = selected ?? value > 0;
       const knex = User.knex();
-      const temp = await knex.raw(
+      await knex.raw(
         `update users_prayers SET selected = ${sel},value=${val} where "prayedAt"::Date ='${today.format(
           'YYYY MM DD',
         )}' and "prayerId" = ${id} and "userId" = ${user.id}`,
