@@ -51,14 +51,14 @@ const getMinLimit = async (juz: number, surah: number) => {
 };
 const checkDailyQuran = async (req: Request) => {
   try {
-    const { value } = req.body;
+    const { date } = req.body;
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment(value);
+    const today = moment(date);
     const dailyQuran = await user
       .$relatedQuery('dailyQuran')
-      .whereRaw(`"readAt"::Date = '${date.format('YYYY MM DD')}'`)
+      .whereRaw(`"readAt"::Date = '${today.format('YYYY MM DD')}'`)
       .first();
     let input: any;
     if (!dailyQuran) {
@@ -143,6 +143,7 @@ export const getDailyQuran = async (req: Request, res: Response) => {
     if (!dailyQuran) {
       const input: any = {
         value: false,
+        readAt: date.toISOString(),
       };
       dailyQuran = await user.$relatedQuery('dailyQuran').insertAndFetch(input);
     }
