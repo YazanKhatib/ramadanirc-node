@@ -2,7 +2,7 @@ import schedule from 'node-schedule';
 import { logger, sendMessage } from 'utils';
 import { Notification, User } from 'models';
 import moment from 'moment';
-import { allColors } from 'winston/lib/winston/config';
+
 //TODO: messages text
 const twoDaysInactivity = async () => {
   try {
@@ -16,8 +16,9 @@ const twoDaysInactivity = async () => {
     await Promise.all(
       data.map(async (userData) => {
         if (userData.language === 'English') {
-          title = '2 days inactivity title in English';
-          body = '2 days inactivity body in English';
+          title = '😢 We miss you.';
+          body =
+            '👋  Got a few minutes? Remember to track your progress to achieve your goals this month!';
         } else {
           title = '2 days inactivity title in French';
           body = '2 days inactivity body in French';
