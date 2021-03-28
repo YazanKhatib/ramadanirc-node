@@ -166,7 +166,12 @@ export const checkTask = async (req: Request, res: Response) => {
       await user.$relatedQuery('tasks').relate(input);
     } else {
       input = { value: value };
-      await user.$relatedQuery('tasks').findById(id).patch(input);
+      const knex = User.knex();
+      await knex.raw(
+        `update users_tasks SET value =${value} where "createdAt"::Date = '${today.format(
+          'YYYY MM DD',
+        )}' and "taskId" = ${id} and "userId" = ${user.id}`,
+      );
     }
     task = await user
       .$relatedQuery('tasks')
