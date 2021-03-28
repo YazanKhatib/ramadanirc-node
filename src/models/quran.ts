@@ -6,7 +6,6 @@ export class QuranTracker extends Model {
   juz: number;
   surah: number;
   ayah: number;
-  readTime: number;
 
   static get tableName() {
     return 'quran_tracker';

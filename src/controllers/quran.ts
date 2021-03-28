@@ -51,10 +51,11 @@ const getMinLimit = async (juz: number, surah: number) => {
 };
 const checkDailyQuran = async (req: Request) => {
   try {
+    const { value } = req.body;
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment();
+    const date = moment(value);
     const dailyQuran = await user
       .$relatedQuery('dailyQuran')
       .whereRaw(`"readAt"::Date = '${date.format('YYYY MM DD')}'`)
@@ -154,18 +155,26 @@ export const getDailyQuran = async (req: Request, res: Response) => {
 export const setTimeRead = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { value } = req.body;
+    const { value, date } = req.body;
     if (!value || value === '')
       return res.status(400).send({ message: 'value is required' });
     await checkDailyQuran(req);
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
+    const today = moment(date);
     const input: any = { readTime: value };
-    let tracker = await user.$relatedQuery('quranTracker');
-    if (!tracker) await user.$relatedQuery('quranTracker').insert(input);
-    else await user.$relatedQuery('quranTracker').patch(input);
-    tracker = await user.$relatedQuery('quranTracker');
-    return res.send({ success: 'readTime has been updated', tracker: tracker });
+    await user
+      .$relatedQuery('dailyQuran')
+      .whereRaw(`"readAt"::Date = '${today.format('YYYY MM DD')}'`)
+      .patch(input);
+    const dailyQuran = await user
+      .$relatedQuery('dailyQuran')
+      .whereRaw(`"readAt"::Date = '${today.format('YYYY MM DD')}'`)
+      .first();
+    return res.send({
+      success: 'readTime has been updated',
+      dailyQuran: dailyQuran,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

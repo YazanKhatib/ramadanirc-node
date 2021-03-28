@@ -5,7 +5,7 @@ export class DailyQuran extends Model {
   readonly id!: number;
   value?: boolean;
   createAt?: string;
-
+  readTime?: number;
   static get tableName() {
     return 'daily_quran';
   }
