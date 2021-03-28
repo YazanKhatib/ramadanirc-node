@@ -64,7 +64,7 @@ const checkDailyQuran = async (req: Request) => {
     if (!dailyQuran) {
       input = {
         value: true,
-        readAt: date.toISOString(),
+        readAt: today.toISOString(),
       };
       await user.$relatedQuery('dailyQuran').insert(input);
     } else {
@@ -74,7 +74,7 @@ const checkDailyQuran = async (req: Request) => {
       await user.$relatedQuery('dailyQuran').patch(input);
     }
   } catch (error) {
-    logger.error(error);
+    logger.error(error.message);
   }
 };
 export const getTracker = async (req: Request, res: Response) => {

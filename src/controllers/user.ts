@@ -84,7 +84,7 @@ export const register = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      res.status(400).send({ message: 'username, email must be unique' });
+      res.status(400).send({ message: 'username or email already exists.' });
     if (error instanceof objection.NotNullViolationError)
       res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
