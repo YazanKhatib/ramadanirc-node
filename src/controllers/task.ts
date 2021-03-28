@@ -146,12 +146,12 @@ export const userTasks = async (req: Request, res: Response) => {
 export const checkTask = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { id, value } = req.body;
+    const { id, value, date } = req.body;
     if (!id || id === '')
       return res.status(400).send({ message: 'id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment();
+    const today = moment(date);
     let task = await user
       .$relatedQuery('tasks')
       .findById(id)
@@ -161,7 +161,7 @@ export const checkTask = async (req: Request, res: Response) => {
       input = {
         id: id,
         value: value,
-        createdAt: new Date(Date.now()).toISOString(),
+        createdAt: today.toISOString(),
       };
       await user.$relatedQuery('tasks').relate(input);
     } else {
