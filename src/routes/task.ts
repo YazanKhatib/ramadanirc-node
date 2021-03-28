@@ -24,5 +24,5 @@ router.post('/myTasks', verifyToken, updateActivity, fillTasks, userTasks);
 router.post('/check', verifyToken, updateActivity, checkTask);
 
 //common routes
-router.get('/', verifyToken, getTask);
+router.get('/', verifyToken, updateActivity, getTask);
 export { router as taskRouter };

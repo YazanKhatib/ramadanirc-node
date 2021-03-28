@@ -5,13 +5,12 @@ import {
   updateReflection,
 } from 'controllers';
 import { Router } from 'express';
-import { verifyToken } from 'middleware';
 
 const router = Router();
 
-router.get('/', verifyToken, getReflections);
-router.get('/:id(\\d+)', verifyToken, getReflections);
-router.get('/delete/:id(\\d+)', verifyToken, deleteReflection);
-router.post('/add', verifyToken, addReflection);
-router.post('/update', verifyToken, updateReflection);
+router.get('/', getReflections);
+router.get('/:id(\\d+)', getReflections);
+router.get('/delete/:id(\\d+)', deleteReflection);
+router.post('/add', addReflection);
+router.post('/update', updateReflection);
 export { router as reflectionRouter };
