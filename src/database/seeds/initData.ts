@@ -24,50 +24,58 @@ export async function seed(knex: Knex): Promise<void> {
     {
       name: 'Smiled at someone',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Gave charity',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Learned something new',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Fed a hungry person',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Prayed in congregation',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Read my daily adhkaar',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Helped someone out',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
     {
       name: 'Asked for forgiveness',
       fixed: true,
-      selectedIcon: 'http://157.230.215.132/public/images/selected.svg',
-      notSelectedIcon: 'http://157.230.215.132/public/images/notSelected.svg',
+      selectedIcon: 'https://www.ircanada.info/public/images/selected.svg',
+      notSelectedIcon:
+        'https://www.ircanada.info/public/images/notSelected.svg',
     },
   ]);
 
