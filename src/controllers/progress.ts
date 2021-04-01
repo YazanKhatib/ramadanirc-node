@@ -19,10 +19,8 @@ export const getMonthlyProgress = async (req: Request, res: Response) => {
     const nafls: any = await user
       .$relatedQuery('prayers')
       .where('type', ['TARAWEEH', 'QIYAM'])
-      .andWhereRaw(
-        `EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`,
-      )
-      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
+      .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
+      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
       .sum('value')
       .first();
     const deeds: any = await user
