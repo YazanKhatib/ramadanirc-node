@@ -164,8 +164,8 @@ export const forgetPassword = async (req: Request, res: Response) => {
     const smtpTransport = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'zainkhatib9@gmail.com',
-        pass: 'pmclkvbjhhckhaam',
+        user: 'app@islamicreliefcanada.org',
+        pass: 'islamicrelief1',
       },
     });
     const mailinfo = {
