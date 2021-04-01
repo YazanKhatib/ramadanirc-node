@@ -125,6 +125,7 @@ export async function up(knex: Knex): Promise<void> {
       table.increments('id').primary();
       table.string('username').defaultTo('');
       table.string('version').defaultTo('');
+      table.string('email').defaultTo('');
       table.timestamp('date');
       table.text('body').defaultTo('');
     });

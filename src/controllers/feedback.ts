@@ -8,7 +8,9 @@ export const addFeedback = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
-    const username = (await User.query().findById(data.id)).username;
+    const user = await User.query().findById(data.id);
+    const username = user.username;
+    const email = user.email;
     const { body, value, version } = req.body;
     const date = moment(value).toISOString();
     const feedback = await Feedback.query().insertAndFetch({
@@ -16,6 +18,7 @@ export const addFeedback = async (req: Request, res: Response) => {
       body,
       date,
       version,
+      email,
     });
     return res
       .status(201)
