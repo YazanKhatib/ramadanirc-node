@@ -173,10 +173,10 @@ export const forgetPassword = async (req: Request, res: Response) => {
       to: user.email,
       subject: 'Password Reset',
       html:
-        'You are reciving this because you (or someone else) have requested the reset of the password for your account. \n\n' +
-        'Please click on the following link, or paste this into your browser to complete the process: \n\n' +
+        'You are reciving this because you (or someone else) have requested the reset of the password for your account. <br>' +
+        'Please click on the following link, or paste this into your browser to complete the process:<br>' +
         `<a href="https://www.ircanada.info/user/reset-password/${token}">Click here <a>` +
-        '\n\nif you did not request this, please ignore this email and your password will remain unchanged.\n',
+        '<br> if you did not request this, please ignore this email and your password will remain unchanged.<br>',
     };
     await smtpTransport.sendMail(mailinfo);
     res.send({ success: 'a link to your email has been sent' });
