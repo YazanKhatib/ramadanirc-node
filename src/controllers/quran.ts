@@ -29,9 +29,10 @@ const getMaxLimit = async (juz: number, surah: number) => {
   const juzLimit = 30;
   const surahLimit = juz !== 30 ? metadata.juzs.references[juz].surah : 114;
   let ayahLimit;
-  if (juz === 30) ayahLimit = metadata.surahs.references[surah].numberOfAyahs;
+  if (juz === 30)
+    ayahLimit = metadata.surahs.references[surah - 1].numberOfAyahs;
   else if (surah === surahLimit) ayahLimit = metadata.juzs.references[juz].ayah;
-  else ayahLimit = metadata.surahs.references[surah].numberOfAyahs;
+  else ayahLimit = metadata.surahs.references[surah - 1].numberOfAyahs;
   return { juz: juzLimit, surah: surahLimit, ayah: ayahLimit };
 };
 const getMinLimit = async (juz: number, surah: number) => {
