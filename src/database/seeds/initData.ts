@@ -46,7 +46,7 @@ export async function seed(knex: Knex): Promise<void> {
         'https://www.ircanada.info/public/images/learn_something_new_not_selected.svg',
     },
     {
-      name: 'Fed a hungry person',
+      name: 'Fed a\n hungry person',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/feed_person_selected.svg',
@@ -62,7 +62,7 @@ export async function seed(knex: Knex): Promise<void> {
         'https://www.ircanada.info/public/images/prayed_in_congregation_not_selected.svg',
     },
     {
-      name: 'Read my daily adhkaar',
+      name: 'Read my \ndaily adhkaar',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/read_daily_selected.svg',
