@@ -30,7 +30,7 @@ export async function seed(knex: Knex): Promise<void> {
         'https://www.ircanada.info/public/images/smiled_at_someone_not_selected.svg',
     },
     {
-      name: 'Gave charity',
+      name: 'Gave \n charity',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/give_charity_selected.svg',
