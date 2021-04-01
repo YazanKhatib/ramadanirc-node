@@ -10,3 +10,4 @@ export * from './reflection';
 export * from './message';
 export * from './indicators';
 export * from './title';
+export * from './feedback';

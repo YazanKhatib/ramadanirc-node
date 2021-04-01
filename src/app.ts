@@ -21,6 +21,7 @@ import {
   messageRouter,
   indicatorsRouter,
   titleRouter,
+  feedbackRouter,
 } from 'routes';
 
 const app: Application = express();
@@ -56,6 +57,7 @@ app.use('/reflection', verifyToken, updateActivity, reflectionRouter);
 app.use('/message', messageRouter);
 app.use('/indicators', verifyToken, updateActivity, indicatorsRouter);
 app.use('/title', verifyToken, updateActivity, titleRouter);
+app.use('/feedback', verifyToken, feedbackRouter);
 
 app.listen(process.env.PORT || 4000, async () => {
   logger.info(`🚀 Server ready at ${process.env.PORT}`);

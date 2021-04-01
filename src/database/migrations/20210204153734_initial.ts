@@ -120,6 +120,13 @@ export async function up(knex: Knex): Promise<void> {
       table.string('bodyFrench').defaultTo('');
       table.timestamp('date');
       table.string('status').defaultTo('Pending');
+    })
+    .createTable('feedbacks', (table) => {
+      table.increments('id').primary();
+      table.string('username').defaultTo('');
+      table.string('version').defaultTo('');
+      table.timestamp('date');
+      table.text('body').defaultTo('');
     });
 }
 
@@ -140,5 +147,6 @@ export async function down(knex: Knex): Promise<void> {
     .dropTableIfExists('prayers')
     .dropTableIfExists('tasks')
     .dropTableIfExists('users')
-    .dropTableIfExists('titles');
+    .dropTableIfExists('titles')
+    .dropTableIfExists('feedbacks');
 }
