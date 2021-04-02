@@ -133,10 +133,10 @@ const scheduledNotification = async () => {
 };
 export const notificationStarter = async () => {
   try {
-    schedule.scheduleJob('0 0 * * *', scheduledNotification);
-    schedule.scheduleJob('0 0 * * *', twoDaysInactivity);
-    schedule.scheduleJob('0 0 * * 1', oneWeekQuranInactivity);
-    schedule.scheduleJob('0 0 * * *', fiveTaskStreak);
+    schedule.scheduleJob('0 */4 * * *', scheduledNotification);
+    schedule.scheduleJob('0 */4 * * *', twoDaysInactivity);
+    schedule.scheduleJob('0 */4 * * *', oneWeekQuranInactivity);
+    schedule.scheduleJob('0 */4 * * *', fiveTaskStreak);
   } catch (error) {
     logger.error(error.message);
     logger.error("notifcation cron jobs could'nt be started");
