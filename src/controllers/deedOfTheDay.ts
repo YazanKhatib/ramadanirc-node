@@ -4,7 +4,8 @@ import { logger } from 'utils';
 import moment from 'moment';
 export const getDeedOfTheDay = async (req: Request, res: Response) => {
   try {
-    const value = moment();
+    const date: any = req.query.date;
+    const value = moment(date);
     const tidbit = await Tidbit.query()
       .whereRaw(`"deedOfTheDayDate"::Date = '${value.format('YYYY MM DD')}'`)
       .first();
