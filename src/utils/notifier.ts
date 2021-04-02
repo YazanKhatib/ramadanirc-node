@@ -3,7 +3,6 @@ import { logger, sendMessage } from 'utils';
 import { Notification, User } from 'models';
 import moment from 'moment';
 
-//TODO: messages text
 const twoDaysInactivity = async () => {
   try {
     const date = new Date(Date.now());
@@ -20,8 +19,9 @@ const twoDaysInactivity = async () => {
           body =
             '👋  Got a few minutes? Remember to track your progress to achieve your goals this month!';
         } else {
-          title = '2 days inactivity title in French';
-          body = '2 days inactivity body in French';
+          title = '😢 Tu nous manques';
+          body =
+            '👋  Vous avez quelques minutes? Rappelez-vous de suivre vos progrès afin d’atteindre vos objectifs ce mois-ci!';
         }
         await sendMessage(userData.registrationToken, title, body);
       }),
@@ -42,11 +42,13 @@ const oneWeekQuranInactivity = async () => {
     await Promise.all(
       data.map(async (userData) => {
         if (userData.language === 'English') {
-          title = 'one week quran inactivity title in English';
-          body = 'one week quran inactivity body in English';
+          title = 'light of quran';
+          body =
+            '🧐 Are you forgetting something? Read some Quran and let’s build a streak this week!';
         } else {
-          title = 'one week quran inactivity title in French';
-          body = 'one week quran inactivity body in French';
+          title = 'lumière du coran';
+          body =
+            '🧐 Oubliez-vous quelque chose? Lisez un peu de Coran et bâtissez une série cette semaine!';
         }
         await sendMessage(userData.registrationToken, title, body);
       }),
@@ -90,11 +92,13 @@ const fiveTaskStreak = async () => {
             await user.$relatedQuery('activity').patch(newInput);
             let title, body;
             if (user.language === 'English') {
-              title = '5 streak title in English';
-              body = '5 streak body in English';
+              title = '5 day tracker streak';
+              body =
+                '👏 Look at you go! Keep up your 5 day streak by filling out your tracker today!';
             } else {
-              title = '5 streak title in French';
-              body = '5 streak body in French';
+              title = 'Suivi de 5 jours';
+              body =
+                "👏 Eh bien, tu peux être fière de toi, Continuez votre séquence de 5 jours en ajoutant votre progrès aujourd'hui!";
             }
             if (user.notify === true)
               await sendMessage(user.registrationToken, title, body);

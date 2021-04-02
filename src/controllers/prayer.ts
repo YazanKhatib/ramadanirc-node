@@ -139,12 +139,17 @@ export const checkPrayer = async (req: Request, res: Response) => {
         .$relatedQuery('notified')
         .whereRaw(`"date"::Date = '${today.format('YYYY MM DD')}'`);
       if (PrayerNum.count === '5' && notified.length === 0) {
-        //TODO: message title and body
-        await sendMessage(
-          user.registrationToken,
-          '5 prayers streak',
-          '5 prayers body',
-        );
+        let body, title;
+        if (user.language == 'English') {
+          body =
+            '🤩 5/5 prayers today, aren’t you amazing! Let’s see if we can do it again tomorrow inshaAllah!';
+          title = 'Well Done 👍';
+        } else {
+          body =
+            "🤩 5/5 prières aujourd'hui,vous êtes génial! Voyons voir si nous pouvons le refaire demain inshaAllah!";
+          title = 'bien fait 👍';
+        }
+        await sendMessage(user.registrationToken, title, body);
         const input: any = {
           isNotified: true,
           date: new Date(Date.now()).toISOString(),
