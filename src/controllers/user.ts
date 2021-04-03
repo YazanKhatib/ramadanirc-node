@@ -84,7 +84,7 @@ export const register = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      res.status(400).send({ message: 'username or email already exists.' });
+      res.status(400).send({ message: 'email already exists.' });
     if (error instanceof objection.NotNullViolationError)
       res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
@@ -251,9 +251,7 @@ export const postProfile = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      return res
-        .status(400)
-        .send({ message: 'username, email must be unique' });
+      return res.status(400).send({ message: 'email must be unique' });
     if (error instanceof objection.NotNullViolationError)
       return res.status(400).send({ message: `${error.column} is required` });
     return res.status(400).send({ message: error.name });
@@ -368,9 +366,7 @@ export const updateUser = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      return res
-        .status(400)
-        .send({ message: 'username, email must be unique' });
+      return res.status(400).send({ message: 'email must be unique' });
     if (error instanceof objection.NotNullViolationError)
       return res.status(400).send({ message: `${error.column} is required` });
     return res.status(400).send({ message: error.message });
