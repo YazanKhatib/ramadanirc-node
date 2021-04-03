@@ -131,7 +131,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
     if (user.notify === true) {
       const PrayerNum: any = await user
         .$relatedQuery('prayers')
-        .andWhereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
+        .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
         .andWhere('prayerId', '<=', '5')
         .count()
         .first();
