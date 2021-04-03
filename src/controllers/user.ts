@@ -175,7 +175,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
       html:
         'You are reciving this because you (or someone else) have requested the reset of the password for your account. <br>' +
         'Please click on the following link, or paste this into your browser to complete the process:<br>' +
-        `<a href="https://www.ircanada.info/user/reset-password/${token}">Click here <a>` +
+        `<a href="https://www.ircanada.net/reset-password/${token}">Click here <a>` +
         '<br> if you did not request this, please ignore this email and your password will remain unchanged.<br>',
     };
     await smtpTransport.sendMail(mailinfo);
