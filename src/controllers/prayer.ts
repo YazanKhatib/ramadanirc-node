@@ -152,7 +152,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
         await sendMessage(user.registrationToken, title, body);
         const input: any = {
           isNotified: true,
-          date: new Date(Date.now()).toISOString(),
+          date: today.toISOString(),
         };
         await user.$relatedQuery('notified').insert(input);
       }
