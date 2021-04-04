@@ -15,7 +15,7 @@ export async function up(knex: Knex): Promise<void> {
       table.string('refreshToken', 255).unique().notNullable();
       table.string('expirationDate').notNullable();
       table.string('registrationToken').notNullable();
-      table.boolean('notify').defaultTo(false);
+      table.boolean('notify').defaultTo(true);
     })
     .createTable('tasks', (table) => {
       table.increments('id').primary();
