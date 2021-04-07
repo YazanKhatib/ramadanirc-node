@@ -2,8 +2,8 @@ import * as Knex from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries
-  await knex('prayers').del();
-  await knex('tasks').del();
+  //await knex('prayers').del();
+  //await knex('tasks').del();
   await knex('tidbits').del();
   await knex('duas').del();
   // Inserts seed entries
