@@ -25,6 +25,7 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('tasks').insert([
     {
       name: 'Smiled at someone',
+      nameFrench: '1',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/smiled_at_someone_selected.svg',
@@ -33,6 +34,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Gave \n charity',
+      nameFrench: '2',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/give_charity_selected.svg',
@@ -41,6 +43,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Learned something new',
+      nameFrench: '3',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/learn_something_new_selected.svg',
@@ -49,6 +52,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Fed a\n hungry person',
+      nameFrench: '4',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/feed_person_selected.svg',
@@ -57,6 +61,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Prayed in congregation',
+      nameFrench: '5',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/prayed_in_congregation_selected.svg',
@@ -65,6 +70,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Read my \ndaily adhkaar',
+      nameFrench: '6',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/read_daily_selected.svg',
@@ -73,6 +79,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Helped someone out',
+      nameFrench: '7',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/help_someone_selected.svg',
@@ -81,6 +88,7 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       name: 'Asked for forgiveness',
+      nameFrench: '8',
       fixed: true,
       selectedIcon:
         'https://www.ircanada.info/public/images/asked_for_forgivness_selected.svg',

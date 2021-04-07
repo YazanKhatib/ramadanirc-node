@@ -26,6 +26,7 @@ const returnUser = async (matchName, matchData) => {
       'gender',
       'admin',
       'notify',
+      'timezone',
     )
     .where(matchName, matchData)
     .first();
@@ -49,6 +50,7 @@ export const register = async (req: Request, res: Response) => {
       location,
       adminSecret,
       registrationToken,
+      date,
     } = req.body;
     let passwordHash = undefined;
     if (password != '') passwordHash = await hashedPassword(password);
@@ -57,6 +59,7 @@ export const register = async (req: Request, res: Response) => {
 
     const refreshToken = await generateRefreshToken(username);
     const admin = adminSecret === process.env.adminSecret;
+    const timezone = date.substring(date.length - 6);
     await User.query().insert({
       username,
       email,
@@ -70,6 +73,7 @@ export const register = async (req: Request, res: Response) => {
         Date.now() + refreshTokenLifeSpan * 1000,
       ).toISOString(), // in miliseconds
       registrationToken,
+      timezone,
     });
     const user = await returnUser('email', email);
 
@@ -98,11 +102,11 @@ export const login = async (req: Request, res: Response) => {
   //   5- renew refresh token
   //   6- send success of failure
   try {
-    const { id, email, registrationToken } = req.body;
+    const { id, email, registrationToken, date } = req.body;
     let { password } = req.body;
     if (!email) return res.status(400).send({ message: 'email required' });
     let user = await User.query().findOne('email', email);
-
+    const timezone = date.substring(date.length - 6);
     //login with facebook state
     if (id != '' && password === '') {
       if (!user) {
@@ -127,6 +131,7 @@ export const login = async (req: Request, res: Response) => {
     await User.query()
       .findById(user.id)
       .patch({
+        timezone,
         registrationToken,
         refreshToken: refreshToken,
         expirationDate: new Date(

@@ -25,6 +25,7 @@ export class User extends Model {
   expirationDate!: string;
   registrationToken!: string;
   notify?: boolean;
+  timezone?: string;
 
   static get tableName() {
     return 'users';

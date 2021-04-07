@@ -1,40 +1,41 @@
 import { Request, Response } from 'express';
 import { User } from 'models';
 import { checkToken, logger } from 'utils';
+import moment from 'moment';
 
 export const getMonthlyProgress = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = new Date(Date.now());
+    const date = moment();
     const sunnah: any = await user
       .$relatedQuery('prayers')
       .where('type', 'SUNNAH')
       .andWhere('selected', true)
-      .whereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.utc().month() + 1}`)
+      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.utc().year()}`)
       .count()
       .first();
     const nafls: any = await user
       .$relatedQuery('prayers')
       .whereBetween('prayerId', [11, 12])
-      .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
+      .andWhereRaw(`EXTRACT(MONTH FROM "prayedAt") = ${date.utc().month() + 1}`)
+      .andWhereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.utc().year()}`)
       .sum('value')
       .first();
     const deeds: any = await user
       .$relatedQuery('tasks')
       .where('value', true)
-      .whereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`EXTRACT(MONTH FROM "createdAt") = ${date.utc().month() + 1}`)
+      .andWhereRaw(`EXTRACT(YEAR FROM "createdAt") = ${date.utc().year()}`)
       .count()
       .first();
     const readTime: any = await user
       .$relatedQuery('dailyQuran')
       .sum('readTime')
-      .whereRaw(`EXTRACT(MONTH FROM "readAt") = ${date.getUTCMonth() + 1}`)
-      .andWhereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`);
+      .whereRaw(`EXTRACT(MONTH FROM "readAt") = ${date.utc().month() + 1}`)
+      .andWhereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.utc().year()}`);
     //const readTime: any = await user.$relatedQuery('quranTracker');
     return res.send({
       sunnahs: sunnah.count,

@@ -16,10 +16,12 @@ export async function up(knex: Knex): Promise<void> {
       table.string('expirationDate').notNullable();
       table.string('registrationToken').notNullable();
       table.boolean('notify').defaultTo(true);
+      table.string('timezone').nullable();
     })
     .createTable('tasks', (table) => {
       table.increments('id').primary();
       table.string('name', 255).unique().notNullable();
+      table.string('nameFrench', 255).unique().notNullable();
       table.boolean('fixed').defaultTo(false);
       table.timestamp('endDate').nullable();
       table.string('selectedIcon').nullable();

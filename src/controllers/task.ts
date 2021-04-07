@@ -14,7 +14,7 @@ export const getTask = async (req: Request, res: Response) => {
     if (!tasks) return res.status(400).send({ message: "Task don't exist" });
   } else
     tasks = await Task.query()
-      .where('endDate', '>', new Date(Date.now()).toISOString())
+      .where('endDate', '>', moment().toISOString())
       .orWhere('endDate', null)
       .orderBy('id');
 
@@ -24,7 +24,7 @@ export const getTask = async (req: Request, res: Response) => {
 
 export const addTask = async (req: Request, res: Response) => {
   try {
-    const { name, fixed, selectedIcon, notSelectedIcon } = req.body;
+    const { name, nameFrench, fixed, selectedIcon, notSelectedIcon } = req.body;
     let task = await Task.query().findOne('name', name);
     if (task) {
       await Task.query().findById(task.id).patch({
@@ -33,6 +33,7 @@ export const addTask = async (req: Request, res: Response) => {
     } else {
       await Task.query().insert({
         name: name,
+        nameFrench,
         fixed: fixed,
         selectedIcon: selectedIcon,
         notSelectedIcon: notSelectedIcon,
@@ -57,11 +58,9 @@ export const deleteTask = async (req: Request, res: Response) => {
     const id = req.params.id;
     const task = await Task.query().findById(+id);
     if (!task) return res.status(400).send({ message: "task don't exist" });
-    await Task.query()
-      .findById(id)
-      .patch({
-        endDate: new Date(Date.now()).toISOString(),
-      });
+    await Task.query().findById(id).patch({
+      endDate: moment().toISOString(),
+    });
     res.send({ success: 'task has been removed.', task: task });
   } catch (error) {
     logger.error(error);
@@ -71,9 +70,17 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   try {
-    const { id, name, fixed, selectedIcon, notSelectedIcon } = req.body;
+    const {
+      id,
+      name,
+      nameFrench,
+      fixed,
+      selectedIcon,
+      notSelectedIcon,
+    } = req.body;
     await Task.query().findById(id).patch({
       name: name,
+      nameFrench,
       fixed: fixed,
       selectedIcon,
       notSelectedIcon,

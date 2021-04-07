@@ -4,6 +4,7 @@ import { User } from 'models';
 export class Task extends Model {
   readonly id!: number;
   name!: string;
+  nameFrench!: string;
   fixed?: boolean;
   endDate?: string;
   selectedIcon?: string;

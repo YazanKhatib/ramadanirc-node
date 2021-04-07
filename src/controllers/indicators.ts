@@ -6,18 +6,18 @@ import moment, { Moment } from 'moment';
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
-    const date = new Date(decodeURIComponent(value));
+    const date = moment(decodeURIComponent(value));
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
 
     const prayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.utc().year()}`)
       .andWhere('selected', true);
     const qurans = await user
       .$relatedQuery('dailyQuran')
-      .whereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.getUTCFullYear()}`)
+      .whereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.utc().year()}`)
       .andWhere('readTime', '>', 0);
 
     const allTasks = (await Task.query()).length;
