@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { User } from 'models';
 import { checkToken, logger } from 'utils';
 import moment from 'moment';
-import { Title } from 'models/title';
+import { Title } from 'models';
 
 export const getReflections = async (req: Request, res: Response) => {
   try {
@@ -10,7 +10,8 @@ export const getReflections = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    let reflections;
+    let reflections: any;
+    const language = user.language === 'English' ? 'en' : 'fr';
     if (!id) reflections = await user.$relatedQuery('reflections');
     else reflections = await user.$relatedQuery('reflections').findById(id);
     if (reflections && reflections.length === 0)
@@ -19,6 +20,15 @@ export const getReflections = async (req: Request, res: Response) => {
     const title = await Title.query()
       .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
       .first();
+    if (reflections.length)
+      await Promise.all(
+        reflections.map(async (reflection) => {
+          reflection.date = moment(reflection.date)
+            .locale(language)
+            .format('MMMM DD ,YYYY');
+        }),
+      );
+
     return res.send({ reflections: reflections, title: title });
   } catch (error) {
     logger.error(error);
@@ -34,8 +44,8 @@ export const addReflection = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
-    const date = moment().format('MMMM DD YYYY');
-
+    const language = user.language === 'English' ? 'en' : 'fr';
+    const date = moment().locale(language).format('MMMM DD ,YYYY');
     const input: any = {
       preview,
       text,

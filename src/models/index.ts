@@ -9,3 +9,4 @@ export * from './reflection';
 export * from './activity';
 export * from './notified';
 export * from './notification';
+export * from './title';
