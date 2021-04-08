@@ -44,8 +44,7 @@ export const addReflection = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
-    const language = user.language === 'English' ? 'en' : 'fr';
-    const date = moment().locale(language).format('MMMM DD ,YYYY');
+    const date = moment().format('MMMM DD ,YYYY');
     const input: any = {
       preview,
       text,
