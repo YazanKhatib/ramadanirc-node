@@ -1,7 +1,6 @@
 import { User } from 'models';
 import { logger, generateAccessToken, tokenIsExpired, checkToken } from 'utils';
 import { Request, Response, NextFunction } from 'express';
-import moment from 'moment';
 
 export const verifyToken = async (
   req: Request,
@@ -17,9 +16,6 @@ export const verifyToken = async (
       accessToken != '' &&
       !(await tokenIsExpired(accessToken))
     ) {
-      const data = await checkToken(accessToken);
-      const user = await User.query().findById(data.id);
-      moment().utcOffset(user.timezone);
       return next();
     }
     if (!refreshToken || refreshToken === '')

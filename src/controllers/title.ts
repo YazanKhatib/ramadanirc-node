@@ -5,7 +5,7 @@ import moment from 'moment';
 export const getTitle = async (req: Request, res: Response) => {
   try {
     const value: any = req.query.date;
-    const date = moment(decodeURIComponent(value));
+    const date = moment.utc(decodeURIComponent(value));
     const title = await Title.query()
       .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
       .first();

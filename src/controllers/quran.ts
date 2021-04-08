@@ -56,7 +56,7 @@ const checkDailyQuran = async (req: Request) => {
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(date);
+    const today = moment.utc(date);
     const dailyQuran = await user
       .$relatedQuery('dailyQuran')
       .whereRaw(`"readAt"::Date = '${today.format('YYYY MM DD')}'`)
@@ -136,7 +136,7 @@ export const getDailyQuran = async (req: Request, res: Response) => {
       res.status(400).send({ message: 'date required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment(value);
+    const date = moment.utc(value);
     let dailyQuran = await user
       .$relatedQuery('dailyQuran')
       .whereRaw(`"readAt"::Date = '${date.format('YYYY MM DD')}'`)
@@ -163,7 +163,7 @@ export const setTimeRead = async (req: Request, res: Response) => {
     await checkDailyQuran(req);
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(date);
+    const today = moment.utc(date);
     const input: any = { readTime: value };
     await user
       .$relatedQuery('dailyQuran')

@@ -5,7 +5,7 @@ import moment from 'moment';
 export const getDeedOfTheDay = async (req: Request, res: Response) => {
   try {
     const date: any = req.query.date;
-    const value = moment(decodeURIComponent(date));
+    const value = moment.utc(decodeURIComponent(date));
     const tidbit = await Tidbit.query()
       .whereRaw(`"deedOfTheDayDate"::Date = '${value.format('YYYY MM DD')}'`)
       .first();

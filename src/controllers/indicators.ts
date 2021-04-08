@@ -6,18 +6,18 @@ import moment, { Moment } from 'moment';
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
-    const date = moment(decodeURIComponent(value));
+    const date = moment.utc(decodeURIComponent(value));
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
 
     const prayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.utc().year()}`)
+      .whereRaw(`EXTRACT(YEAR FROM "prayedAt") = ${date.year()}`)
       .andWhere('selected', true);
     const qurans = await user
       .$relatedQuery('dailyQuran')
-      .whereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.utc().year()}`)
+      .whereRaw(`EXTRACT(YEAR FROM "readAt") = ${date.year()}`)
       .andWhere('readTime', '>', 0);
 
     const allTasks = (await Task.query()).length;
@@ -25,7 +25,7 @@ export const getIndicators = async (req: Request, res: Response) => {
     const resData = new Map();
     let tempDate: Moment;
     for (let i = 0; i < 356; i++) {
-      tempDate = moment();
+      tempDate = moment.utc(date);
       tempDate.subtract(i, 'days');
       const partial = (
         await user
@@ -33,7 +33,7 @@ export const getIndicators = async (req: Request, res: Response) => {
           .whereRaw(` "createdAt"::Date = '${tempDate.format('YYYY MM DD')}'`)
           .andWhere('value', true)
       ).length;
-      resData[tempDate.format('YYYY-MM-DD')] = {
+      resData[tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')] = {
         prayers: {
           fajr: false,
           duhur: false,
@@ -46,21 +46,33 @@ export const getIndicators = async (req: Request, res: Response) => {
       };
     }
     prayers.forEach((prayer: any) => {
-      tempDate = moment(prayer.prayedAt);
+      tempDate = moment.utc(prayer.prayedAt);
       if (prayer.id === 1)
-        resData[tempDate.format('YYYY-MM-DD')].prayers.fajr = true;
+        resData[
+          tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+        ].prayers.fajr = true;
       if (prayer.id === 2)
-        resData[tempDate.format('YYYY-MM-DD')].prayers.duhur = true;
+        resData[
+          tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+        ].prayers.duhur = true;
       if (prayer.id === 3)
-        resData[tempDate.format('YYYY-MM-DD')].prayers.asr = true;
+        resData[
+          tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+        ].prayers.asr = true;
       if (prayer.id === 4)
-        resData[tempDate.format('YYYY-MM-DD')].prayers.maghrib = true;
+        resData[
+          tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+        ].prayers.maghrib = true;
       if (prayer.id === 5)
-        resData[tempDate.format('YYYY-MM-DD')].prayers.isha = true;
+        resData[
+          tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+        ].prayers.isha = true;
     });
     qurans.forEach((quran: any) => {
-      tempDate = moment(quran.readAt);
-      resData[tempDate.format('YYYY-MM-DD')].quran = true;
+      tempDate = moment.utc(quran.readAt);
+      resData[
+        tempDate.utcOffset(user.timezone).format('YYYY-MM-DD')
+      ].quran = true;
     });
     return res.send({ data: resData });
   } catch (error) {
