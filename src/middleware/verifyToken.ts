@@ -11,7 +11,7 @@ export const verifyToken = async (
     const accessToken = req.header('accessToken');
     const refreshToken = req.header('refreshToken');
 
-    if (accessToken && accessToken != '') {
+    if (accessToken != null && accessToken != '') {
       if (!(await tokenIsExpired(accessToken))) return next();
     }
     if (!refreshToken || refreshToken === '')
