@@ -11,12 +11,8 @@ export const verifyToken = async (
     const accessToken = req.header('accessToken');
     const refreshToken = req.header('refreshToken');
 
-    if (
-      accessToken &&
-      accessToken != '' &&
-      !(await tokenIsExpired(accessToken))
-    ) {
-      return next();
+    if (accessToken && accessToken != '') {
+      if (!(await tokenIsExpired(accessToken))) return next();
     }
     if (!refreshToken || refreshToken === '')
       return res.status(403).send({ message: 'refresh Token needed' });
