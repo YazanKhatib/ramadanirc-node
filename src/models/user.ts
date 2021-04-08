@@ -23,7 +23,7 @@ export class User extends Model {
   gender?: string;
   refreshToken!: string;
   expirationDate!: string;
-  registrationToken!: string;
+  registrationToken?: string;
   notify?: boolean;
   timezone?: string;
 

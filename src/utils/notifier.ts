@@ -9,6 +9,7 @@ const twoDaysInactivity = async () => {
     date.setDate(date.getDate() - 2);
     const data: any = await User.relatedQuery('activity')
       .where('notify', 'true')
+      .andWhereNot('registrationToken', null)
       .andWhere('lastActivity', '<=', date.toISOString())
       .select(['registrationToken', 'language']);
     let title, body;
@@ -36,6 +37,7 @@ const oneWeekQuranInactivity = async () => {
     date.setDate(date.getDate() - 7);
     const data: any = await User.relatedQuery('activity')
       .where('notify', 'true')
+      .andWhereNot('registrationToken', null)
       .andWhere('quranActivity', '<=', date.toISOString())
       .select(['language', 'registrationToken']);
     let title, body;
@@ -100,7 +102,7 @@ const fiveTaskStreak = async () => {
               body =
                 "👏 Eh bien, tu peux être fière de toi, Continuez votre séquence de 5 jours en ajoutant votre progrès aujourd'hui!";
             }
-            if (user.notify === true)
+            if (user.notify === true && user.registrationToken)
               await sendMessage(user.registrationToken, title, body);
           }
         }
@@ -111,7 +113,9 @@ const fiveTaskStreak = async () => {
   }
 };
 const scheduledNotification = async () => {
-  const users = await User.query().where('notify', true);
+  const users = await User.query()
+    .where('notify', true)
+    .andWhereNot('registrationToken', null);
   const today = moment();
   const notifications = await Notification.query().whereRaw(
     `"date"::Date = '${today.format('YYYY MM DD')}'`,

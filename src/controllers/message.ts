@@ -12,7 +12,9 @@ export const sendAll = async (req: Request, res: Response) => {
       bodyFrench === ''
     )
       return res.status(400).send({ message: 'title and body are required' });
-    const users = await User.query().where('notify', true);
+    const users = await User.query()
+      .where('notify', true)
+      .andWhereNot('registrationToken', null);
     await Promise.all(
       users.map(async (user) => {
         let title, body;

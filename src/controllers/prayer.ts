@@ -128,7 +128,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
       .findById(id)
       .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
     //5 streak notification
-    if (user.notify === true) {
+    if (user.notify === true && user.registrationToken) {
       const PrayerNum: any = await user
         .$relatedQuery('prayers')
         .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)

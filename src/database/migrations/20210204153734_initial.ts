@@ -14,7 +14,7 @@ export async function up(knex: Knex): Promise<void> {
       table.string('gender', 255).nullable();
       table.string('refreshToken', 255).unique().notNullable();
       table.string('expirationDate').notNullable();
-      table.string('registrationToken').notNullable();
+      table.string('registrationToken').nullable();
       table.boolean('notify').defaultTo(true);
       table.string('timezone').nullable();
     })
