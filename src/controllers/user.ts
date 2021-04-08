@@ -102,7 +102,7 @@ export const login = async (req: Request, res: Response) => {
   //   5- renew refresh token
   //   6- send success of failure
   try {
-    const { id, email, registrationToken, date } = req.body;
+    const { id, email, language, registrationToken, date } = req.body;
     let { password } = req.body;
     if (!email) return res.status(400).send({ message: 'email required' });
     let user = await User.query().findOne('email', email);
@@ -131,6 +131,7 @@ export const login = async (req: Request, res: Response) => {
     await User.query()
       .findById(user.id)
       .patch({
+        language,
         timezone,
         registrationToken,
         refreshToken: refreshToken,
