@@ -133,6 +133,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
         .$relatedQuery('prayers')
         .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
         .andWhere('type', 'FARD')
+        .andWhere('selected', true)
         .count()
         .first();
       const notified = await user
