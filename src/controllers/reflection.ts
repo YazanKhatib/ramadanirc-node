@@ -12,10 +12,13 @@ export const getReflections = async (req: Request, res: Response) => {
     const user = await User.query().findById(data.id);
     let reflections: any;
     const language = user.language === 'English' ? 'en' : 'fr';
-    if (!id) reflections = await user.$relatedQuery('reflections');
+    if (!id)
+      reflections = await user
+        .$relatedQuery('reflections')
+        .orderBy('id', 'DESC');
     else reflections = await user.$relatedQuery('reflections').findById(id);
     if (reflections && reflections.length === 0)
-      return res.send({ success: 'no reflections yet.' });
+      return res.send({ success: 'No reflections yet.' });
     const date = moment();
     const title = await Title.query()
       .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
@@ -25,7 +28,7 @@ export const getReflections = async (req: Request, res: Response) => {
         reflections.map(async (reflection) => {
           reflection.date = moment(reflection.date)
             .locale(language)
-            .format('MMMM DD ,YYYY');
+            .format('MMMM DD, YYYY');
         }),
       );
 
@@ -40,11 +43,11 @@ export const addReflection = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { text } = req.body;
     if (!text || text === '')
-      return res.status(400).send({ message: 'title and text are required.' });
+      return res.status(400).send({ message: 'Title and text are required.' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
-    const date = moment().format('MMMM DD ,YYYY');
+    const date = moment().format('MMMM DD, YYYY');
     const input: any = {
       preview,
       text,
@@ -58,7 +61,7 @@ export const addReflection = async (req: Request, res: Response) => {
       .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
-      success: 'reflection has been added',
+      success: 'Reflection has been added',
       reflection: reflection,
       title: reflectionTitle,
     });
@@ -87,7 +90,7 @@ export const updateReflection = async (req: Request, res: Response) => {
       .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
-      success: 'reflection has been updated',
+      success: 'Reflection has been updated',
       reflection: reflection,
       title: reflectionTitle,
     });
@@ -109,7 +112,7 @@ export const deleteReflection = async (req: Request, res: Response) => {
       .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
       .first();
     return res.send({
-      success: 'reflection has been deleted',
+      success: 'Reflection has been deleted',
       reflection: reflection,
       title: reflectionTitle,
     });

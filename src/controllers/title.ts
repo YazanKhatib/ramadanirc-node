@@ -23,7 +23,7 @@ export const updateTitle = async (req: Request, res: Response) => {
       textFrench,
       date,
     });
-    return res.send({ success: 'title has been updaetd', title: title });
+    return res.send({ success: 'Title has been updaetd', title: title });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -37,7 +37,7 @@ export const addTitle = async (req: Request, res: Response) => {
       textFrench,
       date,
     });
-    return res.send({ success: 'title has been added', title: title });
+    return res.send({ success: 'Title has been added', title: title });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -48,7 +48,7 @@ export const removeTitle = async (req: Request, res: Response) => {
     const id = req.params.id;
     const title = await Title.query().findById(id);
     await Title.query().deleteById(id);
-    return res.send({ success: 'title has been deleted.', title: title });
+    return res.send({ success: 'Title has been deleted.', title: title });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

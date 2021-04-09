@@ -162,9 +162,9 @@ export const forgetPassword = async (req: Request, res: Response) => {
   //   5- success or failure
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).send({ message: 'email required' });
+    if (!email) return res.status(400).send({ message: 'Email required' });
     const user = await User.query().findOne('email', email);
-    if (!user) return res.status(400).send({ message: 'user not found' });
+    if (!user) return res.status(400).send({ message: 'User not found' });
 
     const token = await generateToken({ id: user.id }, 20 * 60); //20minutes
     const smtpTransport = nodemailer.createTransport({
@@ -185,7 +185,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
         '<br> if you did not request this, please ignore this email and your password will remain unchanged.<br>',
     };
     await smtpTransport.sendMail(mailinfo);
-    res.send({ success: 'a link to your email has been sent' });
+    res.send({ success: 'A link to your email has been sent' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -201,15 +201,15 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { newPassword } = req.body;
 
     const data = await checkToken(accessToken);
-    if (!data) res.status(400).send({ message: 'access token is invalid' });
-    if (!newPassword) res.status(400).send({ message: 'password is required' });
+    if (!data) res.status(400).send({ message: 'Access token is invalid' });
+    if (!newPassword) res.status(400).send({ message: 'Password is required' });
 
     const newHashedPassword = await hashedPassword(newPassword);
 
     await User.query().findById(data.id).patch({
       password: newHashedPassword,
     });
-    res.send({ success: 'password updated successfully!' });
+    res.send({ success: 'Password updated successfully!' });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -221,7 +221,7 @@ export const getProfile = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await returnUser('id', data.id);
 
-    if (!user) return res.status(400).send({ message: "user doesn't exist" });
+    if (!user) return res.status(400).send({ message: "User doesn't exist" });
     else
       return res.send({
         user: user,
@@ -239,7 +239,7 @@ export const postProfile = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
 
-    if (!user) return res.status(400).send({ message: "user doesn't exist" });
+    if (!user) return res.status(400).send({ message: "User doesn't exist" });
     await User.query().patchAndFetchById(data.id, {
       username,
       email,
@@ -257,7 +257,7 @@ export const postProfile = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      return res.status(400).send({ message: 'email must be unique' });
+      return res.status(400).send({ message: 'Email must be unique' });
     if (error instanceof objection.NotNullViolationError)
       return res.status(400).send({ message: `${error.column} is required` });
     return res.status(400).send({ message: error.name });
@@ -268,10 +268,10 @@ export const setNotify = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { value } = req.body;
     if (value === null)
-      return res.status(400).send({ message: 'value is required' });
+      return res.status(400).send({ message: 'Value is required' });
     const data = await checkToken(accessToken);
     await User.query().findById(data.id).patch({ notify: value });
-    return res.send({ success: 'notification status has been updated' });
+    return res.send({ success: 'Notification status has been updated' });
   } catch (error) {
     logger.error(error);
     return res.send(400).send({ message: error.message });
@@ -284,7 +284,7 @@ export const setLanguage = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     await User.query().patch({ language }).where('id', data.id);
     const user = await returnUser('id', data.id);
-    return res.send({ success: 'language has been updated', user: user });
+    return res.send({ success: 'Language has been updated', user: user });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -351,7 +351,7 @@ export const updateUser = async (req: Request, res: Response) => {
       admin,
     } = req.body;
     if (!id || id === '')
-      return res.status(400).send({ message: ' id is required' });
+      return res.status(400).send({ message: ' Id is required' });
     await User.query().findById(id).patch({
       username,
       email,
@@ -372,7 +372,7 @@ export const updateUser = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      return res.status(400).send({ message: 'email must be unique' });
+      return res.status(400).send({ message: 'Email must be unique' });
     if (error instanceof objection.NotNullViolationError)
       return res.status(400).send({ message: `${error.column} is required` });
     return res.status(400).send({ message: error.message });

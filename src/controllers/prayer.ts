@@ -86,7 +86,7 @@ export const userPrayers = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error(error);
-    return res.status(400).send({ message: 'invalid date format' });
+    return res.status(400).send({ message: 'Invalid date format' });
   }
 };
 export const checkPrayer = async (req: Request, res: Response) => {
@@ -94,7 +94,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { id, selected, value, date } = req.body;
     if (!id || id === '')
-      return res.status(400).send({ message: 'id is required' });
+      return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const today = moment.utc(date);
@@ -158,11 +158,11 @@ export const checkPrayer = async (req: Request, res: Response) => {
         await user.$relatedQuery('notified').insert(input);
       }
     }
-    res.send({ success: 'prayer had been updated', prayer: prayer });
+    res.send({ success: 'Prayer had been updated', prayer: prayer });
   } catch (error) {
     logger.error(error);
     if (error instanceof ForeignKeyViolationError)
-      return res.status(400).send({ message: "prayer id doesn't exist" });
+      return res.status(400).send({ message: "Prayer id doesn't exist" });
     return res.status(400).send({ message: error.message });
   }
 };

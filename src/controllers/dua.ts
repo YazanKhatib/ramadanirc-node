@@ -19,7 +19,7 @@ export const deleteDua = async (req: Request, res: Response) => {
   try {
     const duaId = req.params.id;
     if (!duaId || duaId === '')
-      return res.status(400).send({ message: 'id must be provided' });
+      return res.status(400).send({ message: 'Id must be provided' });
     const dua = await Dua.query().findById(duaId);
     await Dua.query().deleteById(duaId);
     return res.send({ success: 'Dua has been deleted', dua: dua });
@@ -38,9 +38,7 @@ export const addDua = async (req: Request, res: Response) => {
       textEnglish === '' ||
       textFrench === ''
     )
-      return res
-        .status(400)
-        .send({ message: "all Dua' text must be provided" });
+      return res.status(400).send({ message: "Dua's text must be provided" });
     const dua = await Dua.query().insertAndFetch({
       textArabic,
       textInbetween,
@@ -58,7 +56,7 @@ export const updateDua = async (req: Request, res: Response) => {
   try {
     const { id, textArabic, textInbetween, textEnglish, textFrench } = req.body;
     if (!id || id === '')
-      return res.status(400).send({ message: 'id must be provided' });
+      return res.status(400).send({ message: 'Id must be provided' });
     const dua = await Dua.query().patchAndFetchById(id, {
       textArabic,
       textInbetween,
@@ -122,11 +120,11 @@ export const addFavoriteDua = async (req: Request, res: Response) => {
     let Dua = await user.$relatedQuery('duas').findById(id);
     if (!Dua) await user.$relatedQuery('duas').relate(id);
     Dua = await user.$relatedQuery('duas').findById(id);
-    return res.send({ success: 'dua has been added to favorites', dua: Dua });
+    return res.send({ success: 'Dua has been added to favorites', dua: Dua });
   } catch (error) {
     logger.error(error);
     if (error instanceof Objection.ForeignKeyViolationError)
-      return res.status(400).send({ message: "id doesn't exist " });
+      return res.status(400).send({ message: "Id doesn't exist " });
     return res.status(400).send({ message: error.message });
   }
 };

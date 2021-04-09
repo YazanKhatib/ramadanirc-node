@@ -118,7 +118,7 @@ export const updateTracker = async (req: Request, res: Response) => {
     if (tracker) await user.$relatedQuery('quranTracker').patch(input);
     else await user.$relatedQuery('quranTracker').insert(input);
     return res.send({
-      success: 'quran tracker has been updated',
+      success: 'Quran tracker has been updated',
       tracker: input,
       minLimit: minLimit,
       maxLimit: maxLimit,
@@ -133,7 +133,7 @@ export const getDailyQuran = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { value } = req.body;
     if (!value || value === '')
-      res.status(400).send({ message: 'date required' });
+      res.status(400).send({ message: 'Date required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const date = moment.utc(value);
@@ -159,7 +159,7 @@ export const setTimeRead = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { value, date } = req.body;
     if (!value || value === '')
-      return res.status(400).send({ message: 'value is required' });
+      return res.status(400).send({ message: 'Value is required' });
     await checkDailyQuran(req);
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
@@ -174,7 +174,7 @@ export const setTimeRead = async (req: Request, res: Response) => {
       .whereRaw(`"readAt"::Date = '${today.format('YYYY MM DD')}'`)
       .first();
     return res.send({
-      success: 'readTime has been updated',
+      success: 'Read Time has been updated',
       dailyQuran: dailyQuran,
     });
   } catch (error) {

@@ -40,13 +40,13 @@ export const addTask = async (req: Request, res: Response) => {
       });
     }
     task = await Task.query().findOne('name', name);
-    return res.status(201).send({ success: 'task had been added', task: task });
+    return res.status(201).send({ success: 'Task had been added', task: task });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.ValidationError)
-      res.status(400).send({ message: 'task name is required' });
+      res.status(400).send({ message: 'Task name is required' });
     else if (error instanceof objection.UniqueViolationError)
-      res.status(400).send({ message: 'task name must be unique' });
+      res.status(400).send({ message: 'Task name must be unique' });
     else if (error instanceof objection.NotNullViolationError)
       res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
@@ -61,7 +61,7 @@ export const deleteTask = async (req: Request, res: Response) => {
     await Task.query().findById(id).patch({
       endDate: moment().toISOString(),
     });
-    res.send({ success: 'task has been removed.', task: task });
+    res.send({ success: 'Task has been removed.', task: task });
   } catch (error) {
     logger.error(error);
     res.status(400).send({ message: error.message });
@@ -86,11 +86,11 @@ export const updateTask = async (req: Request, res: Response) => {
       notSelectedIcon,
     });
     const task = await Task.query().findById(id);
-    return res.send({ success: 'task has been modified.', task: task });
+    return res.send({ success: 'Task has been modified.', task: task });
   } catch (error) {
     logger.error(error);
     if (error instanceof objection.UniqueViolationError)
-      res.status(400).send({ message: 'task name must be unique' });
+      res.status(400).send({ message: 'Task name must be unique' });
     if (error instanceof objection.NotNullViolationError)
       res.status(400).send({ message: `${error.column} is required` });
     else res.status(400).send({ message: error.name });
@@ -155,7 +155,7 @@ export const checkTask = async (req: Request, res: Response) => {
     const accessToken = req.header('accessToken');
     const { id, value, date } = req.body;
     if (!id || id === '')
-      return res.status(400).send({ message: 'id is required' });
+      return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const today = moment.utc(date);
@@ -184,7 +184,7 @@ export const checkTask = async (req: Request, res: Response) => {
       .$relatedQuery('tasks')
       .findById(id)
       .whereRaw(`"createdAt"::Date = '${today.format('YYYY MM DD')}'`);
-    return res.send({ success: 'task has been checked.', task: task });
+    return res.send({ success: 'Task has been checked.', task: task });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });

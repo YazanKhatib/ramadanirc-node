@@ -11,7 +11,7 @@ export const sendAll = async (req: Request, res: Response) => {
       bodyEnglish === '' ||
       bodyFrench === ''
     )
-      return res.status(400).send({ message: 'title and body are required' });
+      return res.status(400).send({ message: 'Title and body are required' });
     const users = await User.query()
       .where('notify', true)
       .andWhereNot('registrationToken', null);
@@ -28,7 +28,7 @@ export const sendAll = async (req: Request, res: Response) => {
         await sendMessage(user.registrationToken, title, body);
       }),
     );
-    return res.send({ success: 'messages had been sent' });
+    return res.send({ success: 'Messages had been sent' });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
@@ -61,7 +61,7 @@ export const addNotificaiton = async (req: Request, res: Response) => {
       date,
     });
     return res.send({
-      success: 'notification has been added',
+      success: 'Notification has been added',
       notification: notification,
     });
   } catch (error) {
@@ -87,7 +87,7 @@ export const updateNotification = async (req: Request, res: Response) => {
       date,
     });
     return res.send({
-      success: 'notification has been updated',
+      success: 'Notification has been updated',
       notification: notification,
     });
   } catch (error) {
@@ -101,7 +101,7 @@ export const removeNotification = async (req: Request, res: Response) => {
     const notification = await Notification.query().findById(id);
     await Notification.query().deleteById(id);
     return res.send({
-      success: 'notification has been deleted.',
+      success: 'Notification has been deleted.',
       notification: notification,
     });
   } catch (error) {
