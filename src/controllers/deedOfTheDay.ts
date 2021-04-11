@@ -1,13 +1,22 @@
 import { Request, Response } from 'express';
-import { Tidbit } from 'models';
-import { logger } from 'utils';
+import { Tidbit, User } from 'models';
+import { checkToken, logger, SQLWhereClause } from 'utils';
 import moment from 'moment';
 export const getDeedOfTheDay = async (req: Request, res: Response) => {
   try {
     const date: any = req.query.date;
-    const value = moment.utc(decodeURIComponent(date));
+    const value = moment(decodeURIComponent(date));
+    const accessToken = req.header('accessToken');
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
     const tidbit = await Tidbit.query()
-      .whereRaw(`"deedOfTheDayDate"::Date = '${value.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause(
+          'deedOfTheDayDate',
+          user.timezone,
+          value.format('YYYY MM DD'),
+        ),
+      )
       .first();
     if (!tidbit) return res.send({ deedOfTheDay: 'No deed for the day' });
     return res.send({ deedOfTheDay: tidbit });

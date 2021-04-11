@@ -3,6 +3,7 @@ import { Response, Request, NextFunction } from 'express';
 import { checkToken, logger } from 'utils';
 import objection from 'objection';
 import moment from 'moment';
+import { SQLWhereClause } from 'utils';
 //ADMIN
 //=======
 export const getTask = async (req: Request, res: Response) => {
@@ -107,10 +108,12 @@ export const fillTasks = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const date = moment.utc(value);
+  const date = moment(value);
   const tasks = await user
     .$relatedQuery('tasks')
-    .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`);
+    .whereRaw(
+      SQLWhereClause('createdAt', user.timezone, date.format('YYYY MM DD')),
+    );
   const allTasks = await Task.query();
   if (allTasks.length !== tasks.length) {
     await Promise.all(
@@ -118,7 +121,13 @@ export const fillTasks = async (
         const tempTask = await user
           .$relatedQuery('tasks')
           .findById(task.id)
-          .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`);
+          .whereRaw(
+            SQLWhereClause(
+              'createdAt',
+              user.timezone,
+              date.format('YYYY MM DD'),
+            ),
+          );
         if (!tempTask) {
           const input: any = {
             id: task.id,
@@ -137,11 +146,13 @@ export const userTasks = async (req: Request, res: Response) => {
     const { value } = req.body;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment.utc(value);
+    const date = moment(value);
 
     const tasks = await user
       .$relatedQuery('tasks')
-      .whereRaw(`"createdAt"::Date = '${date.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('createdAt', user.timezone, date.format('YYYY MM DD')),
+      )
       .orderBy('id');
     res.send({ tasks: tasks });
   } catch (error) {
@@ -158,11 +169,13 @@ export const checkTask = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment.utc(date);
+    const today = moment(date);
     let task = await user
       .$relatedQuery('tasks')
       .findById(id)
-      .whereRaw(`"createdAt"::Date = '${today.format('YYYY MM DD')}'`);
+      .whereRaw(
+        SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
+      );
     let input: any;
     if (!task) {
       input = {
@@ -175,15 +188,19 @@ export const checkTask = async (req: Request, res: Response) => {
       input = { value: value };
       const knex = User.knex();
       await knex.raw(
-        `update users_tasks SET value =${value} where "createdAt"::Date = '${today.format(
-          'YYYY MM DD',
-        )}' and "taskId" = ${id} and "userId" = ${user.id}`,
+        `update users_tasks SET value =${value} where ${SQLWhereClause(
+          'createdAt',
+          user.timezone,
+          today.format('YYYY MM DD'),
+        )} and "taskId" = ${id} and "userId" = ${user.id}`,
       );
     }
     task = await user
       .$relatedQuery('tasks')
       .findById(id)
-      .whereRaw(`"createdAt"::Date = '${today.format('YYYY MM DD')}'`);
+      .whereRaw(
+        SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
+      );
     return res.send({ success: 'Task has been checked.', task: task });
   } catch (error) {
     logger.error(error);

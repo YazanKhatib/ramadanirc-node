@@ -3,6 +3,7 @@ import { User } from 'models';
 import { checkToken, logger } from 'utils';
 import moment from 'moment';
 import { Title } from 'models';
+import { SQLWhereClause } from 'utils';
 
 export const getReflections = async (req: Request, res: Response) => {
   try {
@@ -19,9 +20,11 @@ export const getReflections = async (req: Request, res: Response) => {
     else reflections = await user.$relatedQuery('reflections').findById(id);
     if (reflections && reflections.length === 0)
       return res.send({ success: 'No reflections yet.' });
-    const date = moment();
+    const date = moment().utcOffset(user.timezone);
     const title = await Title.query()
-      .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('date', user.timezone, date.format('YYYY MM DD')),
+      )
       .first();
     if (reflections.length)
       await Promise.all(
@@ -47,7 +50,7 @@ export const addReflection = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const preview = text.length <= 30 ? text : text.substring(0, 30) + '...';
-    const date = moment().format('MMMM DD, YYYY');
+    const date = moment().utcOffset(user.timezone).format('MMMM DD, YYYY');
     const input: any = {
       preview,
       text,
@@ -56,9 +59,11 @@ export const addReflection = async (req: Request, res: Response) => {
     const reflection = await user
       .$relatedQuery('reflections')
       .insertAndFetch(input);
-    const tempDate = moment();
+    const tempDate = moment().utcOffset(user.timezone);
     const reflectionTitle = await Title.query()
-      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('date', user.timezone, tempDate.format('YYYY MM DD')),
+      )
       .first();
     return res.send({
       success: 'Reflection has been added',
@@ -85,9 +90,11 @@ export const updateReflection = async (req: Request, res: Response) => {
     const reflection = await user
       .$relatedQuery('reflections')
       .patchAndFetchById(id, input);
-    const tempDate = moment();
+    const tempDate = moment().utcOffset(user.timezone);
     const reflectionTitle = await Title.query()
-      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('date', user.timezone, tempDate.format('YYYY MM DD')),
+      )
       .first();
     return res.send({
       success: 'Reflection has been updated',
@@ -107,9 +114,11 @@ export const deleteReflection = async (req: Request, res: Response) => {
     const user = await User.query().findById(data.id);
     const reflection = await user.$relatedQuery('reflections').findById(id);
     await user.$relatedQuery('reflections').deleteById(id);
-    const tempDate = moment();
+    const tempDate = moment().utcOffset(user.timezone);
     const reflectionTitle = await Title.query()
-      .whereRaw(`"date"::Date = '${tempDate.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('date', user.timezone, tempDate.format('YYYY MM DD')),
+      )
       .first();
     return res.send({
       success: 'Reflection has been deleted',

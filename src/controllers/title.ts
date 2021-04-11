@@ -1,13 +1,20 @@
 import { Request, Response } from 'express';
 import { Title } from 'models/title';
-import { logger } from 'utils';
+import { checkToken, logger } from 'utils';
 import moment from 'moment';
+import { SQLWhereClause } from 'utils';
+import { User } from 'models';
 export const getTitle = async (req: Request, res: Response) => {
   try {
+    const accessToken = req.header('accessToken');
+    const data = await checkToken(accessToken);
+    const user = await User.query().findById(data.id);
     const value: any = req.query.date;
-    const date = moment.utc(decodeURIComponent(value));
+    const date = moment(decodeURIComponent(value));
     const title = await Title.query()
-      .whereRaw(`"date"::Date = '${date.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('date', user.timezone, date.format('YYYY MM DD')),
+      )
       .first();
     return res.send({ title: title });
   } catch (error) {

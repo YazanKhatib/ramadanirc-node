@@ -3,6 +3,8 @@ import { checkToken, logger, sendMessage } from 'utils';
 import { Prayer, User } from 'models';
 import { ForeignKeyViolationError } from 'objection';
 import moment from 'moment';
+import { SQLWhereClause } from 'utils';
+
 export const fillPrayer = async (
   req: Request,
   res: Response,
@@ -12,11 +14,13 @@ export const fillPrayer = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const today = moment.utc(value);
+  const today = moment(value);
 
   const prayers = await user
     .$relatedQuery('prayers')
-    .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+    .whereRaw(
+      SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+    );
   const allPrayers = await Prayer.query();
   if (prayers.length !== allPrayers.length) {
     await Promise.all(
@@ -24,7 +28,13 @@ export const fillPrayer = async (
         const tempPrayer = await user
           .$relatedQuery('prayers')
           .findById(prayer.id)
-          .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+          .whereRaw(
+            SQLWhereClause(
+              'prayedAt',
+              user.timezone,
+              today.format('YYYY MM DD'),
+            ),
+          );
         if (!tempPrayer) {
           const input: any = {
             id: prayer.id,
@@ -44,12 +54,14 @@ export const userPrayers = async (req: Request, res: Response) => {
 
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment.utc(value);
+    const today = moment(value);
 
     //fill prayers
     const userPrayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+      .whereRaw(
+        SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+      );
     const allPrayers = await Prayer.query();
     if (userPrayers.length !== allPrayers.length) {
       await Promise.all(
@@ -57,7 +69,13 @@ export const userPrayers = async (req: Request, res: Response) => {
           const tempPrayer = await user
             .$relatedQuery('prayers')
             .findById(prayer.id)
-            .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+            .whereRaw(
+              SQLWhereClause(
+                'prayedAt',
+                user.timezone,
+                today.format('YYYY MM DD'),
+              ),
+            );
           if (!tempPrayer) {
             const input: any = {
               id: prayer.id,
@@ -70,7 +88,9 @@ export const userPrayers = async (req: Request, res: Response) => {
     }
     const prayers = await user
       .$relatedQuery('prayers')
-      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
+      .whereRaw(
+        SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+      )
       .orderBy('id');
     const fared = prayers.filter((value: Prayer) => value.type === 'FARD');
     const sunnah = prayers.filter((value: Prayer) => value.type === 'SUNNAH');
@@ -97,11 +117,13 @@ export const checkPrayer = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment.utc(date);
+    const today = moment(date);
     let prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
-      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+      .whereRaw(
+        SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+      );
     if (!prayer) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const input: any = {
@@ -118,27 +140,35 @@ export const checkPrayer = async (req: Request, res: Response) => {
       const sel = selected ?? value > 0;
       const knex = User.knex();
       await knex.raw(
-        `update users_prayers SET selected = ${sel},value=${val} where "prayedAt"::Date ='${today.format(
-          'YYYY MM DD',
-        )}' and "prayerId" = ${id} and "userId" = ${user.id}`,
+        `update users_prayers SET selected = ${sel},value=${val} where ${SQLWhereClause(
+          'prayedAt',
+          user.timezone,
+          today.format('YYYY MM DD'),
+        )} and "prayerId" = ${id} and "userId" = ${user.id}`,
       );
     }
     prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
-      .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`);
+      .whereRaw(
+        SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+      );
     //5 streak notification
     if (user.notify === true && user.registrationToken) {
       const PrayerNum: any = await user
         .$relatedQuery('prayers')
-        .whereRaw(`"prayedAt"::Date = '${today.format('YYYY MM DD')}'`)
+        .whereRaw(
+          SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+        )
         .andWhere('type', 'FARD')
         .andWhere('selected', true)
         .count()
         .first();
       const notified = await user
         .$relatedQuery('notified')
-        .whereRaw(`"date"::Date = '${today.format('YYYY MM DD')}'`);
+        .whereRaw(
+          SQLWhereClause('date', user.timezone, today.format('YYYY MM DD')),
+        );
       if (PrayerNum.count === '5' && notified.length === 0) {
         let body, title;
         if (user.language == 'English') {
