@@ -108,7 +108,7 @@ export const fillTasks = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const date = moment(value);
+  const date = moment(value).utcOffset(value);
   const tasks = await user
     .$relatedQuery('tasks')
     .whereRaw(
@@ -146,7 +146,7 @@ export const userTasks = async (req: Request, res: Response) => {
     const { value } = req.body;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const date = moment(value);
+    const date = moment(value).utcOffset(value);
 
     const tasks = await user
       .$relatedQuery('tasks')
@@ -169,7 +169,7 @@ export const checkTask = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(date);
+    const today = moment(date).utcOffset(date);
     let task = await user
       .$relatedQuery('tasks')
       .findById(id)
