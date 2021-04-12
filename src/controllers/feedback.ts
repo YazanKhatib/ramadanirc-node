@@ -12,7 +12,7 @@ export const addFeedback = async (req: Request, res: Response) => {
     const username = user.username;
     const email = user.email;
     const { body, value, version } = req.body;
-    const date = moment(value).toISOString();
+    const date = moment(value).utcOffset(value).toISOString();
     const feedback = await Feedback.query().insertAndFetch({
       username,
       body,

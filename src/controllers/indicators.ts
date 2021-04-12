@@ -7,7 +7,9 @@ import { SQLWhereClause } from 'utils';
 export const getIndicators = async (req: Request, res: Response) => {
   try {
     const value: any = await req.query.date;
-    const date = moment(decodeURIComponent(value));
+    const date = moment(decodeURIComponent(value)).utcOffset(
+      decodeURIComponent(value),
+    );
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
@@ -25,7 +27,7 @@ export const getIndicators = async (req: Request, res: Response) => {
     const resData = new Map();
     let tempDate: Moment;
     for (let i = 0; i < 356; i++) {
-      tempDate = moment(date);
+      tempDate = date;
       tempDate.subtract(i, 'days');
       const partial = (
         await user

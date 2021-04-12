@@ -5,7 +5,9 @@ import moment from 'moment';
 export const getDeedOfTheDay = async (req: Request, res: Response) => {
   try {
     const date: any = req.query.date;
-    const value = moment(decodeURIComponent(date));
+    const value = moment(decodeURIComponent(date)).utcOffset(
+      decodeURIComponent(date),
+    );
     const accessToken = req.header('accessToken');
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);

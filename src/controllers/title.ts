@@ -10,7 +10,9 @@ export const getTitle = async (req: Request, res: Response) => {
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const value: any = req.query.date;
-    const date = moment(decodeURIComponent(value));
+    const date = moment(decodeURIComponent(value)).utcOffset(
+      decodeURIComponent(value),
+    );
     const title = await Title.query()
       .whereRaw(
         SQLWhereClause('date', user.timezone, date.format('YYYY MM DD')),

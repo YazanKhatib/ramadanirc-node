@@ -14,7 +14,7 @@ export const fillPrayer = async (
   const data = await checkToken(accessToken);
   const user = await User.query().findById(data.id);
   const { value } = req.body;
-  const today = moment(value);
+  const today = moment(value).utcOffset(value);
 
   const prayers = await user
     .$relatedQuery('prayers')
@@ -54,7 +54,7 @@ export const userPrayers = async (req: Request, res: Response) => {
 
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(value);
+    const today = moment(value).utcOffset(value);
 
     //fill prayers
     const userPrayers = await user
@@ -117,7 +117,7 @@ export const checkPrayer = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'Id is required' });
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(date);
+    const today = moment(date).utcOffset(date);
     let prayer = await user
       .$relatedQuery('prayers')
       .findById(id)
