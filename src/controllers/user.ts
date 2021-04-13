@@ -43,7 +43,6 @@ export const register = async (req: Request, res: Response) => {
     const {
       id,
       username,
-      email,
       password,
       age,
       gender,
@@ -52,6 +51,8 @@ export const register = async (req: Request, res: Response) => {
       registrationToken,
       date,
     } = req.body;
+    let { email } = req.body;
+    email = email.toLowerCase();
     let passwordHash = undefined;
     if (password != '') passwordHash = await hashedPassword(password);
     else if (password === '' && id != '')
@@ -102,8 +103,9 @@ export const login = async (req: Request, res: Response) => {
   //   5- renew refresh token
   //   6- send success of failure
   try {
-    const { id, email, language, registrationToken, date } = req.body;
-    let { password } = req.body;
+    const { id, language, registrationToken, date } = req.body;
+    let { password, email } = req.body;
+    email = email.toLowerCase();
     if (!email) return res.status(400).send({ message: 'email required' });
     let user = await User.query().findOne('email', email);
     const timezone = date.substring(date.length - 6);
