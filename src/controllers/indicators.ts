@@ -27,7 +27,9 @@ export const getIndicators = async (req: Request, res: Response) => {
     const resData = new Map();
     let tempDate: Moment;
     for (let i = 0; i < 356; i++) {
-      tempDate = date;
+      tempDate = moment(decodeURIComponent(value)).utcOffset(
+        decodeURIComponent(value),
+      );
       tempDate.subtract(i, 'days');
       const partial = (
         await user
@@ -68,6 +70,7 @@ export const getIndicators = async (req: Request, res: Response) => {
     });
     qurans.forEach((quran: any) => {
       tempDate = moment(quran.readAt).utcOffset(user.timezone);
+      logger.info(tempDate.format());
       resData[tempDate.format('YYYY-MM-DD')].quran = true;
     });
     return res.send({ data: resData });
