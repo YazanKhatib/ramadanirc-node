@@ -28,7 +28,11 @@ export async function up(knex: Knex): Promise<void> {
       table.string('notSelectedIcon').nullable();
     })
     .createTable('users_tasks', (table) => {
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.integer('taskId').references('id').inTable('tasks');
       table.boolean('value').defaultTo(false);
       table.timestamp('createdAt').notNullable();
@@ -39,7 +43,11 @@ export async function up(knex: Knex): Promise<void> {
       table.string('type').defaultTo('FARD');
     })
     .createTable('users_prayers', (table) => {
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.integer('prayerId').references('id').inTable('prayers');
       table.integer('value').defaultTo(0);
       table.boolean('selected').defaultTo(false);
@@ -47,14 +55,22 @@ export async function up(knex: Knex): Promise<void> {
     })
     .createTable('quran_tracker', (table) => {
       table.increments('id').primary();
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.integer('juz').defaultTo(1);
       table.integer('surah').defaultTo(1);
       table.integer('ayah').defaultTo(1);
     })
     .createTable('daily_quran', (table) => {
       table.increments('id').primary();
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.boolean('value').defaultTo(false);
       table.timestamp('readAt').defaultTo(null);
       table.integer('readTime').defaultTo(0);
@@ -66,7 +82,11 @@ export async function up(knex: Knex): Promise<void> {
       table.timestamp('deedOfTheDayDate').defaultTo(null);
     })
     .createTable('favorites_tidbits', (table) => {
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table
         .integer('tidbitId')
         .references('id')
@@ -81,7 +101,11 @@ export async function up(knex: Knex): Promise<void> {
       table.text('textFrench').defaultTo('');
     })
     .createTable('favorites_duas', (table) => {
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table
         .integer('duaId')
         .references('id')
@@ -90,7 +114,11 @@ export async function up(knex: Knex): Promise<void> {
     })
     .createTable('reflections', (table) => {
       table.increments('id').primary();
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.string('date').notNullable();
       table.string('preview', 255).defaultTo('');
       table.text('text').defaultTo('');
@@ -103,14 +131,22 @@ export async function up(knex: Knex): Promise<void> {
     })
     .createTable('activities', (table) => {
       table.increments('id').primary();
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.timestamp('lastActivity');
       table.timestamp('quranActivity');
       table.integer('trackerScore').defaultTo(0);
     })
     .createTable('notified', (table) => {
       table.increments('id').primary();
-      table.integer('userId').references('id').inTable('users');
+      table
+        .integer('userId')
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE');
       table.boolean('isNotified').defaultTo(false);
       table.timestamp('date');
     })
