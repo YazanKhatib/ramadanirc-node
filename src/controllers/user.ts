@@ -12,7 +12,7 @@ import {
   generateRefreshToken,
 } from 'utils';
 
-const refreshTokenLifeSpan = 86400; //24 hours in seconds
+const refreshTokenLifeSpan = 86400 * 7; //7 days in seconds
 
 const returnUser = async (matchName, matchData) => {
   const user = await User.query()

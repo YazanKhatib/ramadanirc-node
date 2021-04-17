@@ -33,7 +33,11 @@ export async function up(knex: Knex): Promise<void> {
         .references('id')
         .inTable('users')
         .onDelete('CASCADE');
-      table.integer('taskId').references('id').inTable('tasks');
+      table
+        .integer('taskId')
+        .references('id')
+        .inTable('tasks')
+        .onDelete('CASCADE');
       table.boolean('value').defaultTo(false);
       table.timestamp('createdAt').notNullable();
     })
@@ -48,7 +52,11 @@ export async function up(knex: Knex): Promise<void> {
         .references('id')
         .inTable('users')
         .onDelete('CASCADE');
-      table.integer('prayerId').references('id').inTable('prayers');
+      table
+        .integer('prayerId')
+        .references('id')
+        .inTable('prayers')
+        .onDelete('CASCADE');
       table.integer('value').defaultTo(0);
       table.boolean('selected').defaultTo(false);
       table.timestamp('prayedAt').notNullable();

@@ -15,7 +15,7 @@ export const verifyToken = async (
       if (!(await tokenIsExpired(accessToken))) return next();
     }
     if (!refreshToken || refreshToken === '')
-      return res.status(403).send({ message: 'refresh Token needed' });
+      return res.status(403).send({ message: 'Please try signing in again' });
 
     const user = await User.query().findOne('refreshToken', refreshToken);
 
