@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { logger } from './logger';
 const secret = 'MY_TOKEN_SECRET';
 export const generateAccessToken = async (data: object) => {
-  const token = jwt.sign(data, secret, { expiresIn: 15 * 60 }); // 15 minutes
+  const token = jwt.sign(data, secret, { expiresIn: 30 * 24 * 60 * 60 }); // 30 days
   return token;
 };
 export const generateToken = async (data: object, exipration: number) => {
