@@ -71,14 +71,8 @@ export const deleteTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   try {
-    const {
-      id,
-      name,
-      nameFrench,
-      fixed,
-      selectedIcon,
-      notSelectedIcon,
-    } = req.body;
+    const { id, name, nameFrench, fixed, selectedIcon, notSelectedIcon } =
+      req.body;
     await Task.query().findById(id).patch({
       name: name,
       nameFrench,
@@ -160,50 +154,55 @@ export const userTasks = async (req: Request, res: Response) => {
     return res.status(400).send({ message: error.message });
   }
 };
-
-export const checkTask = async (req: Request, res: Response) => {
+export const checkTasks = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
-    const { id, value, date } = req.body;
-    if (!id || id === '')
-      return res.status(400).send({ message: 'Id is required' });
+    const { tasks, date } = req.body;
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
-    const today = moment(date).utcOffset(date);
-    let task = await user
-      .$relatedQuery('tasks')
-      .findById(id)
-      .whereRaw(
-        SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
-      );
-    let input: any;
-    if (!task) {
-      input = {
-        id: id,
-        value: value,
-        createdAt: today.toISOString(),
-      };
-      await user.$relatedQuery('tasks').relate(input);
-    } else {
-      input = { value: value };
-      const knex = User.knex();
-      await knex.raw(
-        `update users_tasks SET value =${value} where ${SQLWhereClause(
-          'createdAt',
-          user.timezone,
-          today.format('YYYY MM DD'),
-        )} and "taskId" = ${id} and "userId" = ${user.id}`,
-      );
-    }
-    task = await user
-      .$relatedQuery('tasks')
-      .findById(id)
-      .whereRaw(
-        SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
-      );
-    return res.send({ success: 'Task has been checked.', task: task });
+    await Promise.all(
+      tasks.map(async (task) => {
+        await checkTask(task, user, date);
+      }),
+    );
+    res.send({ success: 'Tasks had been updated', tasks: tasks });
   } catch (error) {
     logger.error(error);
     return res.status(400).send({ message: error.message });
   }
+};
+const checkTask = async (singleTask, user, date) => {
+  const { id, value } = singleTask;
+  const today = moment(date).utcOffset(date);
+  let task = await user
+    .$relatedQuery('tasks')
+    .findById(id)
+    .whereRaw(
+      SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
+    );
+  let input: any;
+  if (!task) {
+    input = {
+      id: id,
+      value: value,
+      createdAt: today.toISOString(),
+    };
+    await user.$relatedQuery('tasks').relate(input);
+  } else {
+    input = { value: value };
+    const knex = User.knex();
+    await knex.raw(
+      `update users_tasks SET value =${value} where ${SQLWhereClause(
+        'createdAt',
+        user.timezone,
+        today.format('YYYY MM DD'),
+      )} and "taskId" = ${id} and "userId" = ${user.id}`,
+    );
+  }
+  task = await user
+    .$relatedQuery('tasks')
+    .findById(id)
+    .whereRaw(
+      SQLWhereClause('createdAt', user.timezone, today.format('YYYY MM DD')),
+    );
 };

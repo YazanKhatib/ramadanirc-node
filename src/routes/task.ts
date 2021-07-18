@@ -6,7 +6,7 @@ import {
   userTasks,
   updateTask,
   deleteTask,
-  checkTask,
+  checkTasks,
   fillTasks,
 } from 'controllers';
 const router = Router();
@@ -21,7 +21,7 @@ router.post('/update', verifyToken, verifyAdmin, updateTask);
 
 //user routes
 router.post('/myTasks', verifyToken, updateActivity, fillTasks, userTasks);
-router.post('/check', verifyToken, updateActivity, checkTask);
+router.post('/check', verifyToken, updateActivity, checkTasks);
 
 //common routes
 router.get('/', verifyToken, updateActivity, getTask);
