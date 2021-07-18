@@ -1,9 +1,9 @@
-import { checkPrayer, userPrayers } from 'controllers';
+import { checkPrayers, userPrayers } from 'controllers';
 import { Router } from 'express';
 
 const router = Router();
 
 router.post('/myprayers', userPrayers);
-router.post('/check', checkPrayer);
+router.post('/check', checkPrayers);
 
 export { router as prayerRouter };
