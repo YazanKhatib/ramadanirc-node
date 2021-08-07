@@ -51,17 +51,16 @@ export const userPrayers = async (req: Request, res: Response) => {
   try {
     const accessToken = req.header('accessToken');
     const { value } = req.body;
-
     const data = await checkToken(accessToken);
     const user = await User.query().findById(data.id);
     const today = moment(value).utcOffset(value);
 
     //fill prayers
-    const userPrayers = await user
-      .$relatedQuery('prayers')
-      .whereRaw(
-        SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
-      );
+    const userPrayers = await user.$relatedQuery('prayers').whereRaw(
+      //TODO: figure the fix
+      SQLWhereClause('prayedAt', user.timezone, today.format('YYYY MM DD')),
+    );
+
     const allPrayers = await Prayer.query();
     if (userPrayers.length !== allPrayers.length) {
       await Promise.all(
