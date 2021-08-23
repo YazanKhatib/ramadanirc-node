@@ -1,4 +1,4 @@
-import objection, { NotNullViolationError } from 'objection';
+import objection, { NotFoundError, NotNullViolationError } from 'objection';
 import nodemailer from 'nodemailer';
 import { Request, Response } from 'express';
 import { User } from 'models';
@@ -11,6 +11,8 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from 'utils';
+import appleAuth from 'utils/appleAuth';
+import jwt from 'jsonwebtoken';
 
 const refreshTokenLifeSpan = 86400 * 7; //7 days in seconds
 
@@ -153,6 +155,24 @@ export const login = async (req: Request, res: Response) => {
     logger.error(error);
     if (error instanceof NotNullViolationError)
       return res.status(400).send({ message: `${error.column} is required` });
+    return res.status(400).send({ message: error.message });
+  }
+};
+export const appleLogin = async (req: Request, res: Response) => {
+  try {
+    const { token: appleToken } = req.body;
+    if (!appleToken) throw new NotFoundError([]);
+    const apple = await appleAuth.accessToken(appleToken);
+    const appleData = jwt.decode(apple.id_token);
+
+    const { sub: appleId } = appleData;
+    Object.assign(req.body, [
+      { password: '', id: appleId, email: appleData['email'] },
+    ]);
+    await login(req, res);
+  } catch (error) {
+    if (error instanceof NotFoundError)
+      return res.status(400).send({ message: 'Apple Token Not Found' });
     return res.status(400).send({ message: error.message });
   }
 };

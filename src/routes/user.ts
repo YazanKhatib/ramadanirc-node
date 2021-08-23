@@ -11,6 +11,7 @@ import {
   getUser,
   updateUser,
   setLanguage,
+  appleLogin,
 } from 'controllers';
 
 const router = Router();
@@ -19,6 +20,7 @@ const router = Router();
 router.get('/:id(\\d+)', verifyToken, verifyAdmin, getUser);
 router.post('/update', verifyToken, verifyAdmin, updateUser);
 
+router.post('/apple-auth', appleLogin);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/reset-password/:accessToken', resetPassword);
